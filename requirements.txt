@@ -1,3 +1,2 @@
 streamlit
 geopandas
-pandas
