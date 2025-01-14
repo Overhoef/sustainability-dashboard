@@ -1,1 +1,13 @@
 streamlit
+pandas
+geopandas
+matplotlib.pyplot
+seaborn
+matplotlib.cm
+numpy
+matplotlib.pyplot
+matplotlib.markers
+plotly.graph_objects
+plotly.express
+streamlit
+time
