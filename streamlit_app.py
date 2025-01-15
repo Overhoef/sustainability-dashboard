@@ -22,6 +22,8 @@ gdf = gpd.GeoDataFrame(
 
 eham = gdf[gdf['ADEP'] == 'EHAM']
 
+eham_small = eham.sample(frac=0.2, random_state=200)
+
 top = df.sort_values(by = ['Average_rating'], ascending = True)
 ehamtop = top.head(5) 
 
@@ -65,7 +67,7 @@ fig = go.Figure()
 #     title='World map'
 # )
 
-for _,row in eham.iterrows():
+for _,row in eham_small.iterrows():
     fig.add_trace(go.Scattermapbox(mode='lines',
                                    lon=[row['LONGITUDE_ADES'], row['LONGITUDE_ADEP']],
                                    lat=[row['LATITUDE_ADES'], row['LATITUDE_ADEP']],
