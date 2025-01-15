@@ -12,6 +12,8 @@ import plotly.express as px
 import streamlit as st
 import time
 
+st.set_page_config(layout="wide")  # Set wide mode as default
+
 df = pd.read_csv('Sustainabilty_dashboard_2025.csv')
 
 gdf = gpd.GeoDataFrame(
