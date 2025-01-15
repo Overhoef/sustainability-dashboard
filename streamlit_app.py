@@ -22,7 +22,7 @@ gdf = gpd.GeoDataFrame(
 
 eham = gdf[gdf['ADEP'] == 'EHAM']
 
-eham_small = eham.sample(frac=0.2, random_state=200)
+eham_small = eham.sample(frac=0.1, random_state=200)
 
 top = df.sort_values(by = ['Average_rating'], ascending = True)
 ehamtop = top.head(5) 
