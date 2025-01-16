@@ -73,7 +73,6 @@ airline_colors = {
     'Southwest Airlines': '#FFA07A',  # Light Salmon
     'Ryanair': '#90EE90',  # Light Green
     'EasyJet': '#F08080',  # Light Coral
-    'Wizz Air': '#800080',  # Purple
     'Turkish Airlines': '#A020F0',  # Purple
     'KLM': '#00BFFF',  # Deep Sky Blue
     'Iberia': '#FFC0CB',  # Pink
@@ -101,27 +100,15 @@ airline_colors = {
     'Edelweiss Air': '#0000FF',  # Blue
     'Eurowings': '#008000',  # Green
     'Transavia': '#FFFF00',  # Yellow
-    'easyJet': '#FFA500',  # Orange
     'Vueling': '#FF0000',  # Red
-    'Ryanair': '#008000',  # Green
     'Wizz Air': '#800080',  # Purple
     # Add more airlines and their corresponding colors here
 }
 
 aircraft_colors = {
     'A320-200': '#0077C0', 
-    'A320-200': '#FF0000', 
-    'A320-200': '#008000', 
-    'A320-200': '#FFFF00', 
-    'A320-200': '#00FFFF', 
-    'A320-200': '#FF00FF', 
-    'A319-100': '#C0C0C0', 
-    'A320-200': '#FFA07A', 
-    'A320-200': '#90EE90', 
-    'A321-200': '#F08080', 
-    'A320-200': '#800080', 
-    'A320-200': '#A020F0', 
-    'A320-200': '#00BFFF', 
+    'A319-100': '#C0C0C0',  
+    'A321-200': '#F08080',  
     # ... (Add more aircraft variants and unique colors) 
     'A330-300': '#FFC0CB', 
     'A330-900': '#8B0000', 
