@@ -53,7 +53,7 @@ def assign_color(letter):
   colors = {
       'A': 'darkgreen',
       'B': 'green',
-      'C': 'lime',
+      'C': 'limegreen',
       'D': 'yellow',
       'E': 'orange',
       'F': 'purple',
@@ -172,6 +172,16 @@ with box1:
 with box2:
     destination_airport = st.selectbox('Destination', ['All'] + list(unique_destination_airports), )
 
+# # Filter data based on selected airports
+if departure_airport != 'All' and destination_airport != 'All':
+        filtered_df = df[(df['ADEP'] == departure_airport) & (df['ADES'] == destination_airport)]
+else:
+    # If nothing selected, show best 100, worst 100, and average 100
+    best_100 = df.sort_values(by='Average_rating', ascending=True).head(100)
+    worst_100 = df.sort_values(by='Average_rating', ascending=False).head(100)
+    avg_100 = df.sample(n=100, random_state=42)  # Sample 100 random flights
+    filtered_df = pd.concat([best_100, worst_100, avg_100])
+
 # Filters
 filtercol1, filtercol2 = st.columns(2)
 
@@ -183,19 +193,7 @@ with filtercol2:
     airline_filter = st.checkbox('Airlines')
     aircraft_filter = st.checkbox('Aircraft type')
 
-# # Filter data based on selected airports
-if departure_airport != 'All' and destination_airport != 'All':
-        filtered_df = df[(df['ADEP'] == departure_airport) & (df['ADES'] == destination_airport)]
-elif departure_airport == 'All' and destination_airport != 'All':
-        filtered_df = df[df['ADES'] == destination_airport]
-elif departure_airport != 'All' and destination_airport == 'All':
-        filtered_df = df[df['ADEP'] == departure_airport]
-else:
-    # If nothing selected, show best 100, worst 100, and average 100
-    best_100 = df.sort_values(by='Average_rating', ascending=True).head(100)
-    worst_100 = df.sort_values(by='Average_rating', ascending=False).head(100)
-    avg_100 = df.sample(n=100, random_state=42)  # Sample 100 random flights
-    filtered_df = pd.concat([best_100, worst_100, avg_100])
+# mapfilter = st.radio('Filters:', ["None", "Ratings","Loadfactor","Airlines","Aircraft type"], horizontal=True)
 
 # Calculate route-specific average load factor
 route_avg_load_factors = filtered_df.groupby(['ADEP', 'ADES'])['Loadfactor'].mean()
@@ -251,11 +249,9 @@ for _, row in filtered_df.iterrows():
     if airline_filter and row['Airline'] in airline_colors: 
         line_color = airline_colors.get(row['Airline']) 
 
-
     # AIRCRAFT FILTER
     if aircraft_filter and row['Aircraft Variant'] in aircraft_colors: 
         line_color = aircraft_colors.get(row['Aircraft Variant']) 
-    
 
     fig.add_trace(go.Scattermapbox(
         mode='lines',
@@ -287,13 +283,12 @@ fig.update_layout(
 # Show the plot
 st.plotly_chart(fig)
 
-
 selected, export = st.columns([0.8, 0.2])
 
 with selected:
     # Display filtered data with limited rows
-    max_rows_to_show = 10  # Adjust as needed
-    selected_columns = ['FLT_UID', 'Overall_rating', 'NAME_ADEP', 'ADEP', 'NAME_ADES', 'ADES', 'Airline', 'Aircraft Variant', 'REGISTRATION', 'Flight Time', 'Distance (km)','CO2 rating', 'NOx rating', 'Fuel Flow rating']  # Select desired columns
+    max_rows_to_show = 5  # Adjust as needed
+    selected_columns = ['FLT_UID', 'NAME_ADEP', 'ADEP', 'NAME_ADES', 'ADES', 'Airline', 'Aircraft Variant', 'REGISTRATION', 'Flight Time', 'Distance (km)','CO2 rating', 'NOx rating', 'Fuel Flow rating', 'Overall_rating']  # Select desired columns
 
     st.header('Filtered Flights:')
     if len(filtered_df) > max_rows_to_show:
