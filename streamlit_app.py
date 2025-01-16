@@ -201,18 +201,20 @@ def filter_data(df, departure_airports, destination_airports):
     """
     if 'All' in departure_airports:
         departure_filter = df['ADEP']
-    else:
+    elif departure_airports:
         departure_filter = df['ADEP'].isin(departure_airports)
+    else:
+        departure_filter = df['ADEP']  # Allow all departures if none are selected
 
     if 'All' in destination_airports:
         destination_filter = df['ADES']
-    else:
+    elif destination_airports:
         destination_filter = df['ADES'].isin(destination_airports)
-
-    if departure_filter.empty or destination_filter.empty:
-        return pd.DataFrame()  # Create an empty DataFrame
     else:
-        return df[departure_filter & destination_filter]
+        destination_filter = df['ADES']  # Allow all destinations if none are selected
+
+    filtered_df = df[departure_filter & destination_filter]
+    return filtered_df
 
 # Filter data using the cached function
 filtered_df = filter_data(df, departure_airports, destination_airports)
