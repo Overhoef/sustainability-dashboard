@@ -16,8 +16,14 @@ import time
 # Config
 st.set_page_config(layout="wide")  # Set wide mode as default
 
-# Data
-df = pd.read_csv('Sustainabilty_dashboard_2025.csv')
+# Cache the data loading function
+@st.cache_data
+def load_data():
+    df = pd.read_csv('Sustainabilty_dashboard_2025.csv')
+    return df
+
+# Load data using the cached function
+df = load_data()
 
 gdf = gpd.GeoDataFrame(
     df, geometry=gpd.points_from_xy(df.LONGITUDE_ADES, df.LATITUDE_ADES), crs="EPSG:4326"
@@ -71,8 +77,6 @@ airline_colors = {
     'Singapore Airlines': '#FF00FF',  # Magenta
     'United Airlines': '#C0C0C0',  # Silver
     'Southwest Airlines': '#FFA07A',  # Light Salmon
-    'Ryanair': '#90EE90',  # Light Green
-    'EasyJet': '#F08080',  # Light Coral
     'Turkish Airlines': '#A020F0',  # Purple
     'KLM': '#00BFFF',  # Deep Sky Blue
     'Iberia': '#FFC0CB',  # Pink
@@ -100,15 +104,17 @@ airline_colors = {
     'Edelweiss Air': '#0000FF',  # Blue
     'Eurowings': '#008000',  # Green
     'Transavia': '#FFFF00',  # Yellow
+    'easyJet': '#FFA500',  # Orange
     'Vueling': '#FF0000',  # Red
+    'Ryanair': '#008000',  # Green
     'Wizz Air': '#800080',  # Purple
     # Add more airlines and their corresponding colors here
 }
 
 aircraft_colors = {
-    'A320-200': '#0077C0', 
-    'A319-100': '#C0C0C0',  
-    'A321-200': '#F08080',  
+    'A319-100': '#C0C0C0', 
+    'A320-200': '#FFA07A',  
+    'A321-200': '#F08080', 
     # ... (Add more aircraft variants and unique colors) 
     'A330-300': '#FFC0CB', 
     'A330-900': '#8B0000', 
@@ -191,14 +197,6 @@ else:
     avg_100 = df.sample(n=100, random_state=42)  # Sample 100 random flights
     filtered_df = pd.concat([best_100, worst_100, avg_100])
 
-if rating_filter:
-    # Apply rating filter and assign colors accordingly
-    filtered_df['color'] = filtered_df['Overall_rating'].apply(assign_color) 
-    line_color = filtered_df['color']
-else:
-    # Default to gray for all lines when filter is not applied
-    filtered_df['color'] = 'gray'
-
 # Calculate route-specific average load factor
 route_avg_load_factors = filtered_df.groupby(['ADEP', 'ADES'])['Loadfactor'].mean()
 
@@ -224,34 +222,40 @@ fig.add_trace(go.Scattermapbox(
     hoverinfo='text'
 ))
 
+line_color = 'gray' 
+
+if rating_filter:
+    # Apply rating filter and assign colors accordingly
+    filtered_df['color'] = filtered_df['Overall_rating'].apply(assign_color) 
+    line_color = filtered_df['color']
+else:
+    # Default to gray for all lines when filter is not applied
+    filtered_df['color'] = 'gray'
+
+
     # Add scattermapbox traces for routes using flight_id
 for _, row in filtered_df.iterrows():
     # Get route-specific average load factor
     route = (row['ADEP'], row['ADES'])
     avg_load_factor = route_avg_load_factors.get(route) 
 
-# DENSITY FILTER 
+    # DENSITY FILTER 
     if density_filter:
         # Normalize load factor to a range of 0 to 1 
         normalized_load_factor = (avg_load_factor - filtered_df['Loadfactor'].min()) / (filtered_df['Loadfactor'].max() - filtered_df['Loadfactor'].min()) 
         # Create a color based on load factor using a blue-to-yellow gradient
         line_color = plt.cm.viridis(normalized_load_factor)
         line_color = f'rgb({int(line_color[0]*255)},{int(line_color[1]*255)},{int(line_color[2]*255)})' 
- 
-    else:
-        line_color = row['color'] 
 
-# AIRLINE FILTER
+    # AIRLINE FILTER
     if airline_filter and row['Airline'] in airline_colors: 
         line_color = airline_colors.get(row['Airline']) 
-    else:
-        line_color = row['color']  # Default to gray if airline not found or filter is not checked
 
-# AIRCRAFT FILTER
+
+    # AIRCRAFT FILTER
     if aircraft_filter and row['Aircraft Variant'] in aircraft_colors: 
         line_color = aircraft_colors.get(row['Aircraft Variant']) 
-    else:
-        line_color = row['color']
+    
 
     fig.add_trace(go.Scattermapbox(
         mode='lines',
@@ -279,6 +283,7 @@ fig.update_layout(
             # projection=dict(type='equirectangular')
     ),
     )
+
 # Show the plot
 st.plotly_chart(fig)
 
