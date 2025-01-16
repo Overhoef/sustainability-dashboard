@@ -201,17 +201,13 @@ def filter_data(df, departure_airports, destination_airports):
     """
     if 'All' in departure_airports:
         departure_filter = df['ADEP']
-    elif departure_airports:
+    else departure_airports:
         departure_filter = df['ADEP'].isin(departure_airports)
-    else:
-        departure_filter = True
 
     if 'All' in destination_airports:
         destination_filter = df['ADES']
-    elif destination_airports:
+    else destination_airports:
         destination_filter = df['ADES'].isin(destination_airports)
-    else:
-        destination_filter = True
 
     if departure_filter.empty or destination_filter.empty:
         return pd.DataFrame()  # Create an empty DataFrame
