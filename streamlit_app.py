@@ -265,9 +265,6 @@ for _, row in filtered_df.iterrows():
         name=row['Overall_rating']  # Use rating as legend label
 ))
 
-else:
-    st.warning("No matching flights found for the selected criteria. Try broadening your search or selecting 'All' for departure and/or destination.")
-
 fig.update_layout(
         # showlegend=False,
         height=800,
