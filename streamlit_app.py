@@ -156,12 +156,26 @@ aircraft_colors = {
     'ATR 42': '#00008B',  # Dark Blue
 }
 
-# Get unique airports
-unique_departure_airports = df['ADEP'].unique()
-unique_destination_airports = df['ADES'].unique()
-
 # Streamlit Page
 st.title('🛫 Sustainability Dashboard 🛬')
+
+@st.cache_data
+def get_unique_airports(df):
+    """
+    Calculates unique departure and destination airports from the DataFrame.
+
+    Args:
+        df: The DataFrame containing flight data.
+
+    Returns:
+        A tuple containing lists of unique departure and destination airports.
+    """
+    unique_departure_airports = df['ADEP'].unique()
+    unique_destination_airports = df['ADES'].unique()
+    return unique_departure_airports, unique_destination_airports
+
+# Get unique airports using the cached function
+unique_departure_airports, unique_destination_airports = get_unique_airports(df)
 
 # Multiselect boxes
 box1, box2 = st.columns(2)
@@ -172,13 +186,43 @@ with box1:
 with box2:
     destination_airports = st.multiselect('Destination', ['All'] + list(unique_destination_airports), default='All')
 
-# Filter data based on selected airports
-if 'All' not in departure_airports and 'All' not in destination_airports:
-    filtered_df = df[
-        (df['ADEP'].isin(departure_airports)) & (df['ADES'].isin(destination_airports))
-    ]
-else:
-    # If nothing selected, show best 100, worst 100, and average 100
+@st.cache_data
+def filter_data(df, departure_airports, destination_airports):
+    """
+    Filters the DataFrame based on selected departure and destination airports.
+
+    Args:
+        df: The DataFrame containing flight data.
+        departure_airports: List of selected departure airports.
+        destination_airports: List of selected destination airports.
+
+    Returns:
+        The filtered DataFrame.
+    """
+    if 'All' in departure_airports:
+        departure_filter = df['ADEP']
+    elif departure_airports:
+        departure_filter = df['ADEP'].isin(departure_airports)
+    else:
+        departure_filter = True
+
+    if 'All' in destination_airports:
+        destination_filter = df['ADES']
+    elif destination_airports:
+        destination_filter = df['ADES'].isin(destination_airports)
+    else:
+        destination_filter = True
+
+    if departure_filter.empty or destination_filter.empty:
+        return pd.DataFrame()  # Create an empty DataFrame
+    else:
+        return df[departure_filter & destination_filter]
+
+# Filter data using the cached function
+filtered_df = filter_data(df, departure_airports, destination_airports)
+
+# Handle cases where no airports are selected
+if filtered_df.empty:
     best_100 = df.sort_values(by='Average_rating', ascending=True).head(100)
     worst_100 = df.sort_values(by='Average_rating', ascending=False).head(100)
     avg_100 = df.sample(n=100, random_state=42)  # Sample 100 random flights
@@ -195,8 +239,6 @@ with filtercol1:
 # with filtercol2:
     # airline_filter = st.checkbox('Airlines')
     # aircraft_filter = st.checkbox('Aircraft type')
-
-# mapfilter = st.radio('Filters:', ["None", "Ratings","Loadfactor","Airlines","Aircraft type"], horizontal=True)
 
 # Calculate route-specific average load factor
 route_avg_load_factors = filtered_df.groupby(['ADEP', 'ADES'])['Loadfactor'].mean()
@@ -225,13 +267,11 @@ fig.add_trace(go.Scattermapbox(
 
 line_color = 'gray' 
 
-
 # else:
 #     # Default to gray for all lines when filter is not applied
 #     filtered_df['color'] = 'gray'
 
-
-    # Add scattermapbox traces for routes using flight_id
+# Add scattermapbox traces for routes using flight_id
 for _, row in filtered_df.iterrows():
     # Get route-specific average load factor
     route = (row['ADEP'], row['ADES'])
