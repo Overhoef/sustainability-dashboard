@@ -162,19 +162,20 @@ unique_destination_airports = df['ADES'].unique()
 # Streamlit Page
 st.title('🛫 Sustainability Dashboard 🛬')
 
-
-# Select Boxes
+# Multiselect boxes
 box1, box2 = st.columns(2)
 
 with box1:
-    departure_airport = st.selectbox('Departure', ['All'] + list(unique_departure_airports))
+    departure_airports = st.multiselect('Departure', ['All'] + list(unique_departure_airports))
 
 with box2:
-    destination_airport = st.selectbox('Destination', ['All'] + list(unique_destination_airports), )
+    destination_airports = st.multiselect('Destination', ['All'] + list(unique_destination_airports))
 
-# # Filter data based on selected airports
-if departure_airport != 'All' and destination_airport != 'All':
-        filtered_df = df[(df['ADEP'] == departure_airport) & (df['ADES'] == destination_airport)]
+# Filter data based on selected airports
+if 'All' not in departure_airports and 'All' not in destination_airports:
+    filtered_df = df[
+        (df['ADEP'].isin(departure_airports)) & (df['ADES'].isin(destination_airports))
+    ]
 else:
     # If nothing selected, show best 100, worst 100, and average 100
     best_100 = df.sort_values(by='Average_rating', ascending=True).head(100)
@@ -222,13 +223,10 @@ fig.add_trace(go.Scattermapbox(
 
 line_color = 'gray' 
 
-if rating_filter:
-    # Apply rating filter and assign colors accordingly
-    filtered_df['color'] = filtered_df['Overall_rating'].apply(assign_color) 
-    line_color = filtered_df['color']
-else:
-    # Default to gray for all lines when filter is not applied
-    filtered_df['color'] = 'gray'
+
+# else:
+#     # Default to gray for all lines when filter is not applied
+#     filtered_df['color'] = 'gray'
 
 
     # Add scattermapbox traces for routes using flight_id
@@ -236,6 +234,11 @@ for _, row in filtered_df.iterrows():
     # Get route-specific average load factor
     route = (row['ADEP'], row['ADES'])
     avg_load_factor = route_avg_load_factors.get(route) 
+
+    if rating_filter:
+    # Apply rating filter and assign colors accordingly
+        filtered_df['color'] = filtered_df['Overall_rating'].apply(assign_color) 
+        line_color = row['color']
 
     # DENSITY FILTER 
     if density_filter:
@@ -264,7 +267,7 @@ for _, row in filtered_df.iterrows():
         legendgroup=row['Overall_rating'],  # Group traces by rating for legend
         name=row['Overall_rating']  # Use rating as legend label
 ))
-
+    
 fig.update_layout(
         # showlegend=False,
         height=800,
@@ -319,12 +322,12 @@ col1, col2 = st.columns(2)
 
 with col1:
     st.header('Top 5 best flights')
-    st.table(filtered_df[selected_columns].head(5))
+    st.table(df[selected_columns].head(5))
 
 with col2:
     st.header('Top 5 worst flights')
-    filtered_df.sort_values(by = ['Average_rating'], ascending = False)
-    st.table(filtered_df[selected_columns].tail(5))
+    df.sort_values(by = ['Average_rating'], ascending = False)
+    st.table(df[selected_columns].tail(5))
 
 # Lay-out
 st.sidebar.title("Introduction")
