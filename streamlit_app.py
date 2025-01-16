@@ -108,53 +108,54 @@ airline_colors = {
     'Vueling': '#FF0000',  # Red
     'Ryanair': '#008000',  # Green
     'Wizz Air': '#800080',  # Purple
-    # Add more airlines and their corresponding colors here
+    'Pegasus Airlines': '#803080',
+    'Croatia Airlines': '#FFA5FF',
+    'Aegean Airlines': '#008080'
 }
 
 aircraft_colors = {
-    'A319-100': '#C0C0C0', 
-    'A320-200': '#FFA07A',  
-    'A321-200': '#F08080', 
-    # ... (Add more aircraft variants and unique colors) 
-    'A330-300': '#FFC0CB', 
-    'A330-900': '#8B0000', 
-    'A350-900': '#008B8B', 
-    'A350-1000': '#A52A2A', 
-    'A380-800': '#FFFF00', 
-    'B737-800': '#008080', 
-    'B737-MAX 8': '#800080', 
-    'B737-700': '#00008B', 
-    'B737-900': '#F0E68C', 
-    'B737-MAX 9': '#008080', 
-    'B737-MAX 10': '#FF0000', 
-    'B747-400': '#0000FF', 
-    'B747-8': '#008000', 
-    'B747-8F': '#FFFF00', 
-    'B757-200': '#00FFFF', 
-    'B757-300': '#FF00FF', 
-    'B767-300': '#C0C0C0', 
-    'B767-300ER': '#FFA07A', 
-    'B767-400ER': '#90EE90', 
-    'B777-200': '#F08080', 
-    'B777-200ER': '#800080', 
-    'B777-300': '#A020F0', 
-    'B777-300ER': '#00BFFF', 
-    'B777-9': '#FFC0CB', 
-    'B777F': '#8B0000', 
-    'B787-8': '#008B8B', 
-    'B787-9': '#A52A2A', 
-    'B787-10': '#FFFF00', 
-    'E170': '#008080', 
-    'E175': '#800080', 
-    'E190': '#00008B', 
-    'E195': '#F0E68C', 
-    'CRJ-900': '#008080', 
-    'CRJ-700': '#FF0000', 
-    'CRJ-200': '#0000FF', 
-    'ATR 72': '#008000', 
-    'ATR 42': '#FFFF00', 
-    # ... (Add more aircraft variants and unique colors)
+    'A319-100': '#C0C0C0',  # Light Grey
+    'A320-200': '#FFA07A',  # Light Salmon
+    'A321-200': '#F08080',  # Light Coral
+    'A330-300': '#FFC0CB',  # Pink
+    'A330-900': '#8B0000',  # Dark Red
+    'A350-900': '#008B8B',  # Teal
+    'A350-1000': '#A52A2A',  # Brown
+    'A380-800': '#FFFF00',  # Yellow
+    'B737-800': '#00FFFF',  # Cyan
+    'B737-MAX 8': '#FF00FF',  # Magenta
+    'B737-700': '#800080',  # Purple
+    'B737-900': '#A020F0',  # Purple (deeper)
+    'B737-MAX 9': '#00BFFF',  # Deep Sky Blue
+    'B737-MAX 10': '#FFC0CB',  # Pink
+    'B747-400': '#8B0000',  # Dark Red
+    'B747-8': '#008B8B',  # Teal
+    'B747-8F': '#A52A2A',  # Brown
+    'B757-200': '#FFFF00',  # Yellow
+    'B757-300': '#008080',  # Teal
+    'B767-300': '#800080',  # Purple
+    'B767-300ER': '#00008B',  # Dark Blue
+    'B767-400ER': '#F0E68C',  # Goldenrod
+    'B777-200': '#008080',  # Teal
+    'B777-200ER': '#FF0000',  # Red
+    'B777-300': '#0000FF',  # Blue
+    'B777-300ER': '#008000',  # Green
+    'B777-9': '#FFFF00',  # Yellow
+    'B777F': '#00FFFF',  # Cyan
+    'B787-8': '#FF00FF',  # Magenta
+    'B787-9': '#C0C0C0',  # Light Grey
+    'B787-10': '#FFA07A',  # Light Salmon
+    'E170': '#F08080',  # Light Coral
+    'E175': '#FFC0CB',  # Pink
+    'E190': '#8B0000',  # Dark Red
+    'E195': '#008B8B',  # Teal
+    'CRJ-900': '#A52A2A',  # Brown
+    'CRJ-700': '#FFFF00',  # Yellow
+    'CRJ-200': '#008080',  # Teal
+    'ATR 72': '#800080',  # Purple
+    'ATR 42': '#00008B',  # Dark Blue
 }
+
 # Get unique airports
 unique_departure_airports = df['ADEP'].unique()
 unique_destination_airports = df['ADES'].unique()
@@ -166,10 +167,10 @@ st.title('🛫 Sustainability Dashboard 🛬')
 box1, box2 = st.columns(2)
 
 with box1:
-    departure_airports = st.multiselect('Departure', ['All'] + list(unique_departure_airports))
+    departure_airports = st.multiselect('Departure', ['All'] + list(unique_departure_airports), default='EHAM')
 
 with box2:
-    destination_airports = st.multiselect('Destination', ['All'] + list(unique_destination_airports))
+    destination_airports = st.multiselect('Destination', ['All'] + list(unique_destination_airports), default='All')
 
 # Filter data based on selected airports
 if 'All' not in departure_airports and 'All' not in destination_airports:
@@ -187,12 +188,13 @@ else:
 filtercol1, filtercol2 = st.columns(2)
 
 with filtercol1:
-    rating_filter = st.checkbox('Ratings')
-    density_filter = st.checkbox('Loadfactor Density')
+    mapfilter = st.radio('Filter by:', ['None', 'Airline', 'Aircraft Type', 'Ratings', 'Loadfactor Density'], index=0, horizontal=True)
+    # rating_filter = st.checkbox('Ratings')
+    # density_filter = st.checkbox('Loadfactor Density')
 
-with filtercol2:
-    airline_filter = st.checkbox('Airlines')
-    aircraft_filter = st.checkbox('Aircraft type')
+# with filtercol2:
+    # airline_filter = st.checkbox('Airlines')
+    # aircraft_filter = st.checkbox('Aircraft type')
 
 # mapfilter = st.radio('Filters:', ["None", "Ratings","Loadfactor","Airlines","Aircraft type"], horizontal=True)
 
@@ -235,26 +237,34 @@ for _, row in filtered_df.iterrows():
     route = (row['ADEP'], row['ADES'])
     avg_load_factor = route_avg_load_factors.get(route) 
 
-    if rating_filter:
-    # Apply rating filter and assign colors accordingly
-        filtered_df['color'] = filtered_df['Overall_rating'].apply(assign_color) 
-        line_color = row['color']
+    match mapfilter:
+        case 'All':
+            line_color = 'gray'
+        case 'Ratings':
+            line_color = airline_colors[row['Airline']]
+            # Apply rating filter and assign colors accordingly
+            filtered_df['color'] = filtered_df['Overall_rating'].apply(assign_color)
+            line_color = row['color']
+        
 
-    # DENSITY FILTER 
-    if density_filter:
-        # Normalize load factor to a range of 0 to 1 
-        normalized_load_factor = (avg_load_factor - filtered_df['Loadfactor'].min()) / (filtered_df['Loadfactor'].max() - filtered_df['Loadfactor'].min()) 
-        # Create a color based on load factor using a blue-to-yellow gradient
-        line_color = plt.cm.viridis(normalized_load_factor)
-        line_color = f'rgb({int(line_color[0]*255)},{int(line_color[1]*255)},{int(line_color[2]*255)})' 
+        # DENSITY FILTER
+        case "Loadfactor Density":
+            # Normalize load factor to a range of 0 to 1
+            normalized_load_factor = (avg_load_factor - filtered_df['Loadfactor'].min()) / (filtered_df['Loadfactor'].max() - filtered_df['Loadfactor'].min())
+            # Create a color based on load factor using a blue-to-yellow gradient
+            line_color = plt.cm.viridis(normalized_load_factor)
+            line_color = f'rgb({int(line_color[0]*255)},{int(line_color[1]*255)},{int(line_color[2]*255)})'
 
-    # AIRLINE FILTER
-    if airline_filter and row['Airline'] in airline_colors: 
-        line_color = airline_colors.get(row['Airline']) 
+        # AIRLINE FILTER
+        case 'Airline':
+            if row['Airline'] in airline_colors:
+                line_color = airline_colors.get(row['Airline'])
+        
 
-    # AIRCRAFT FILTER
-    if aircraft_filter and row['Aircraft Variant'] in aircraft_colors: 
-        line_color = aircraft_colors.get(row['Aircraft Variant']) 
+        # AIRCRAFT FILTER
+        case 'Aircraft Type':
+            if row['Aircraft Variant'] in aircraft_colors:
+                line_color = aircraft_colors.get(row['Aircraft Variant'])
 
     fig.add_trace(go.Scattermapbox(
         mode='lines',
@@ -269,7 +279,7 @@ for _, row in filtered_df.iterrows():
 ))
     
 fig.update_layout(
-        # showlegend=False,
+        showlegend=False,
         height=800,
         width=1200,
         mapbox=dict(
@@ -322,12 +332,12 @@ col1, col2 = st.columns(2)
 
 with col1:
     st.header('Top 5 best flights')
-    st.table(df[selected_columns].head(5))
+    st.table(filtered_df[selected_columns].head(5))
 
 with col2:
     st.header('Top 5 worst flights')
-    df.sort_values(by = ['Average_rating'], ascending = False)
-    st.table(df[selected_columns].tail(5))
+    filtered_df.sort_values(by = ['Average_rating'], ascending = False)
+    st.table(filtered_df[selected_columns].tail(5))
 
 # Lay-out
 st.sidebar.title("Introduction")
