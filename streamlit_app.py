@@ -32,14 +32,6 @@ gdf = gpd.GeoDataFrame(
     df, geometry=gpd.points_from_xy(df.LONGITUDE_ADEP, df.LATITUDE_ADEP), crs="EPSG:4326"
 )
 
-eham = gdf[gdf['ADEP'] == 'EHAM']
-
-top = df.sort_values(by = ['Average_rating'], ascending = True)
-ehamtop = top.head(5) 
-
-worst = df.sort_values(by = ['Average_rating'], ascending = False)
-ehamworst = worst.head(5)
-
 def assign_color(letter):
   """
   Assigns a color based on the letter.
@@ -159,68 +151,29 @@ aircraft_colors = {
 # Streamlit Page
 st.title('🛫 Sustainability Dashboard 🛬')
 
-@st.cache_data
-def get_unique_airports(df):
-    """
-    Calculates unique departure and destination airports from the DataFrame.
+# Get unique airports
+unique_departure_airports = df['ADEP'].unique()
+unique_destination_airports = df['ADES'].unique()
 
-    Args:
-        df: The DataFrame containing flight data.
-
-    Returns:
-        A tuple containing lists of unique departure and destination airports.
-    """
-    unique_departure_airports = df['ADEP'].unique()
-    unique_destination_airports = df['ADES'].unique()
-    return unique_departure_airports, unique_destination_airports
-
-# Get unique airports using the cached function
-unique_departure_airports, unique_destination_airports = get_unique_airports(df)
+# Streamlit Page
+st.title('🛫 Sustainability Dashboard 🛬')
 
 # Multiselect boxes
 box1, box2 = st.columns(2)
 
 with box1:
-    departure_airports = st.multiselect('Departure', ['All'] + list(unique_departure_airports), default='EHAM')
+    departure_airports = st.multiselect('Departure', ['All'] + list(unique_departure_airports))
 
 with box2:
-    destination_airports = st.multiselect('Destination', ['All'] + list(unique_destination_airports), default='All')
+    destination_airports = st.multiselect('Destination', ['All'] + list(unique_destination_airports))
 
-@st.cache_data
-def filter_data(df, departure_airports, destination_airports):
-    """
-    Filters the DataFrame based on selected departure and destination airports.
-
-    Args:
-        df: The DataFrame containing flight data.
-        departure_airports: List of selected departure airports.
-        destination_airports: List of selected destination airports.
-
-    Returns:
-        The filtered DataFrame.
-    """
-    if 'All' in departure_airports:
-        departure_filter = df['ADEP']
-    elif departure_airports:
-        departure_filter = df['ADEP'].isin(departure_airports)
-    else:
-        departure_filter = df['ADEP']  # Allow all departures if none are selected
-
-    if 'All' in destination_airports:
-        destination_filter = df['ADES']
-    elif destination_airports:
-        destination_filter = df['ADES'].isin(destination_airports)
-    else:
-        destination_filter = df['ADES']  # Allow all destinations if none are selected
-
-    filtered_df = df[departure_filter & destination_filter]
-    return filtered_df
-
-# Filter data using the cached function
-filtered_df = filter_data(df, departure_airports, destination_airports)
-
-# Handle cases where no airports are selected
-if filtered_df.empty:
+# Filter data based on selected airports
+if 'All' not in departure_airports and 'All' not in destination_airports:
+    filtered_df = df[
+        (df['ADEP'].isin(departure_airports)) & (df['ADES'].isin(destination_airports))
+    ]
+else:
+    # If nothing selected, show best 100, worst 100, and average 100
     best_100 = df.sort_values(by='Average_rating', ascending=True).head(100)
     worst_100 = df.sort_values(by='Average_rating', ascending=False).head(100)
     avg_100 = df.sample(n=100, random_state=42)  # Sample 100 random flights
@@ -310,7 +263,7 @@ for _, row in filtered_df.iterrows():
         lat=[row['LATITUDE_ADES'], row['LATITUDE_ADEP']],
         line=dict(color=line_color, width=1),
         opacity=0.4,
-        text=f"Route: {row['ADEP']} - {row['ADES']}<br>Avg. Load Factor: {avg_load_factor:.2f}%.<br> {row['Airline']}.<br> {row['Aircraft Variant']} <br> {row['Overall_rating']}",
+        text=f"Route: {row['ADEP']} - {row['ADES']}<br>Avg. Load Factor: {avg_load_factor:.2f}%.<br> {row['Airline']}.<br> {row['Aircraft Variant']} <br> Rating {row['Overall_rating']}",
         # name=row['FLT_UID'],  # Use flight_id for unique tracing
         legendgroup=row['Overall_rating'],  # Group traces by rating for legend
         name=row['Overall_rating']  # Use rating as legend label
