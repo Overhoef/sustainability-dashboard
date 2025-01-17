@@ -148,9 +148,6 @@ aircraft_colors = {
     'ATR 42': '#00008B',  # Dark Blue
 }
 
-# Streamlit Page
-st.title('🛫 Sustainability Dashboard 🛬')
-
 # Get unique airports
 unique_departure_airports = df['ADEP'].unique()
 unique_destination_airports = df['ADES'].unique()
