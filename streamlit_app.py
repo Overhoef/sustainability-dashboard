@@ -159,10 +159,10 @@ st.title('🛫 Sustainability Dashboard 🛬')
 box1, box2 = st.columns(2)
 
 with box1:
-    departure_airports = st.multiselect('Departure', ['All'] + list(unique_departure_airports))
+    departure_airports = st.multiselect('Departure', ['All'] + list(unique_departure_airports), default='EHAM')
 
 with box2:
-    destination_airports = st.multiselect('Destination', ['All'] + list(unique_destination_airports))
+    destination_airports = st.multiselect('Destination', ['All'] + list(unique_destination_airports), default='All')
 
 # Filter data based on selected airports
 if 'All' not in departure_airports and 'All' not in destination_airports:
