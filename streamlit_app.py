@@ -1,7 +1,6 @@
 import pandas as pd
 import geopandas as gpd
 import matplotlib.pyplot as plt
-import seaborn as sns
 import matplotlib.cm as cm
 import numpy as np
 import matplotlib.pyplot as plt
@@ -11,19 +10,32 @@ import plotly.graph_objects as go
 import plotly.express as px
 import streamlit as st
 import time
+import sys
 
 
 # Config
 st.set_page_config(layout="wide")  # Set wide mode as default
 
-# Cache the data loading function
-@st.cache_data
-def load_data():
-    df = pd.read_csv('Sustainabilty_dashboard_2025.csv')
-    return df
-
-# Load data using the cached function
-df = load_data()
+# Data
+df = pd.read_csv('Sustainabilty_dashboard_2025.csv', usecols=[
+    'ADEP', 
+    'ADES', 
+    'AIRCRAFT_ID',
+    'Operator',
+    'Aircraft Variant',
+    'Average_rating',
+    'Distance (km)',
+    'Flight Time', 
+    'FLT_UID', 
+    'Overall_rating', 
+    'NAME_ADEP', 
+    'LONGITUDE_ADEP',
+    'LATITUDE_ADEP',
+    'NAME_ADES', 
+    'LATITUDE_ADES',
+    'LONGITUDE_ADES',
+    'Loadfactor'    
+]) # pd.read_csv('Sustainabilty_dashboard_2025.csv')
 
 gdf = gpd.GeoDataFrame(
     df, geometry=gpd.points_from_xy(df.LONGITUDE_ADES, df.LATITUDE_ADES), crs="EPSG:4326"
@@ -58,51 +70,117 @@ df['color'] = df['Overall_rating'].apply(assign_color)
 
 # Create an airline color dictionary with unique colors
 airline_colors = {
-    'Air France': '#0077C0',  # Blue
-    'American Airlines': '#FF0000',  # Red
-    'British Airways': '#0000FF',  # Blue
-    'Delta Air Lines': '#008000',  # Green
-    'Emirates': '#FFA500',  # Orange
-    'Etihad Airways': '#800080',  # Purple
-    'Lufthansa': '#FFFF00',  # Yellow
-    'Qatar Airways': '#00FFFF',  # Cyan
-    'Singapore Airlines': '#FF00FF',  # Magenta
-    'United Airlines': '#C0C0C0',  # Silver
-    'Southwest Airlines': '#FFA07A',  # Light Salmon
-    'Turkish Airlines': '#A020F0',  # Purple
-    'KLM': '#00BFFF',  # Deep Sky Blue
-    'Iberia': '#FFC0CB',  # Pink
-    'Air Canada': '#8B0000',  # Dark Red
-    'ANA All Nippon Airways': '#008B8B',  # Teal
-    'Japan Airlines': '#A52A2A',  # Brown
-    'Korean Air': '#FFFF00',  # Yellow
-    'China Southern Airlines': '#008080',  # Teal
-    'Air China': '#800080',  # Purple
-    'Cathay Pacific': '#00008B',  # Dark Blue
-    'Qantas': '#F0E68C',  # Khaki
-    'Finnair': '#008080',  # Teal
-    'SAS': '#FF4500',  # Orange Red
-    'Norwegian Air': '#008B8B',  # Teal
-    'Vueling': '#FFA500',  # Orange
-    'Austrian Airlines': '#FFFF00',  # Yellow
-    'Swiss International Air Lines': '#FF0000',  # Red
-    'Brussels Airlines': '#0000FF',  # Blue
-    'Czech Airlines': '#008000',  # Green
-    'LOT Polish Airlines': '#FFFF00',  # Yellow
-    'Aer Lingus': '#8B0000',  # Dark Red
-    'Icelandair': '#0000FF',  # Blue
-    'TAP Air Portugal': '#008000',  # Green
-    'Scandinavian Airlines': '#FF0000',  # Red
-    'Edelweiss Air': '#0000FF',  # Blue
-    'Eurowings': '#008000',  # Green
-    'Transavia': '#FFFF00',  # Yellow
-    'easyJet': '#FFA500',  # Orange
-    'Vueling': '#FF0000',  # Red
-    'Ryanair': '#008000',  # Green
-    'Wizz Air': '#800080',  # Purple
-    'Pegasus Airlines': '#803080',
-    'Croatia Airlines': '#FFA5FF',
-    'Aegean Airlines': '#008080'
+'Emirates Airline' : "#e61919",
+'Delta Air Lines': "#e62519",
+'KLM Royal Dutch Airlines' : "#e63119",
+'Aeromexico' : "#e63c19",
+'Air Transat' : "#e64819",
+'Air Canada' : "#e65319",
+'Transavia' : "#e65f19",
+'Corendon Dutch Airlines' : "#e66a19",
+'Xiamen Airlines' : "#e67619",
+'China Airlines' : "#e68119",
+'Georgian Airways' : "#e68d19",
+'Korean Air' : "#e69819",
+'Suparna Airlines' : "#e6a419",
+'Cathay Pacific' : "#e6af19",
+'Bulgaria Air' : "#e6bb19",
+'easyJet Europe' : "#e6c619",
+'Qatar Airways' : "#e6d219",
+'Turkish Airlines': "#e6dd19",
+'Corendon Airlines' : "#e2e619",
+'airBaltic' : "#d7e619",
+'Lufthansa' : "#cbe619",
+'LOT Polish Airlines' : "#c0e619",
+'easyJet' : "#b4e619",
+'TUI Airlines Netherlands' : "#a9e619",
+'Austrian Airlines' : "#9de619",
+'Vueling': "#92e619",
+'TAP Air Portugal' : "#86e619",
+'Italia Trasporto Aereo (ITA Airways)' : "#7be619",
+'BA CityFlyer' : "#6fe619",
+'China Southern Airlines' : "#64e619",
+'Air France' : "#58e619",
+'Ryanair' : "#4de619",
+'Air Europa Líneas Aéreas' : "#41e619",
+'Kuwait Airways' : "#36e619",
+'Finnair' : "#2ae619",
+'Aer Lingus' : "#1ee619",
+'SWISS' : "#19e620",
+'Aegean Airlines' : "#19e62c",
+'Pegasus Airlines' : "#19e637",
+'Air Serbia' : "#19e643",
+'EVA Air' : "#19e64e",
+'Air Malta' : "#19e65a",
+'TAROM' : "#19e665",
+'BA Euroflyer' : "#19e671",
+'British Airways' : "#19e67c",
+'Etihad Airways' : "#19e688",
+'Royal Air Maroc'  : "#19e693",
+'SAS' : "#19e69f",
+'Croatia Airlines' : "#19e6aa",
+'Norwegian Air Sweden AOC' : "#19e6b6",
+'Iberia Express' : "#19e6c1",
+'Royal Jordanian' : "#19e6cd",
+'Icelandair' : "#19e6d8",
+'EgyptAir' : "#19e6e4",
+'American Airlines' : "#19dce6",
+'United Airlines' : "#19d0e6",
+'Singapore Airlines' : "#19c5e6",
+'Surinam Airways' : "#19b9e6",
+'Kenya Airways' : "#19aee6",
+'Garuda Indonesia' : "#19a2e6",
+'China Eastern Airlines' : "#1997e6",
+'Global Jet Luxembourg' : "#198be6",
+'SunExpress' : "#1980e6",
+'Pantanal Linhas Aéreas' : "#1974e6",
+'Air Astana' : "#195de6",
+'El Al' : "#1952e6",
+'Sky Express' : "#1946e6",
+'Saudia' : "#193ae6",
+'TUI Airways Ltd' : "#192fe6",
+'easyJet Switzerland' : "#1923e6",
+'PLAY' : "#1b19e6",
+'Air Alsie' : "#2719e6",
+'Air India' : "#3219e6",
+'Air Arabia Maroc' : "#3e19e6",
+'Eurowings' : "#4919e6",
+'Norwegian Air Shuttle AOC': "#5519e6",
+'Malaysia Airlines' : "#6019e6",
+'Avies Air Company' : "#6c19e6",
+'Arkia Israeli Airlines': "#7719e6",
+'KLM Cityhopper' : "#8319e6",
+'MHS Aviation' : "#8e19e6",
+'UR Airlines' : "#9a19e6",
+'TUI fly Belgium': "#a519e6",
+'DC Aviation GmbH': "#b119e6",
+'Titan Airways': "#bc19e6",
+'London Executive Aviation Ltd': "#c819e6",
+'FLYONE' : "#d319e6",
+'SmartLynx Airlines Estonia' : "#df19e6",
+'Private Wings Flugcharter' : "#e619e1",
+'AlbaStar' : "#e619d5",
+'AirX Charter' : "#e619ca",
+'Ryanair UK' : "#e619be",
+'Arcus Air' : "#e619b3",
+'EFS European Flight Service' : "#e619a7",
+'RVL Group' : "#e6199c",
+'DOT LT' : "#e61990",
+'Gama Aviation' : "#e61985",
+'Jet Story' : "#e61979",
+'National Airlines (US)' : "#e6196e",
+'Enter Air' : "#e61962",
+'Air Hamburg' : "#e61956",
+'ABS Jets' : "#e6194b",
+'MJet' : "#e6193f" ,
+'Corendon Airlines Europe' : "#e61934",
+'Avcon Jet' : "#e61928",
+'Transavia France' : "#e61954",
+'Copenhagen Airtaxi' : "#e61949",
+'SmartWings' : "#e6193e",
+'SunClass Airlines' : "#e61933",
+'European Air Charter' : "#e61927",
+'FlexFlight' : "#1969e6"
 }
 
 aircraft_colors = {
@@ -159,34 +237,51 @@ st.title('🛫 Sustainability Dashboard 🛬')
 box1, box2 = st.columns(2)
 
 with box1:
-    departure_airports = st.multiselect('Departure', ['All'] + list(unique_departure_airports), default='EHAM')
+    departure_airport = st.multiselect('Departure', ['All'] + list(unique_departure_airports), default="EHAM")
 
 with box2:
-    destination_airports = st.multiselect('Destination', ['All'] + list(unique_destination_airports), default='All')
+    destination_airport = st.multiselect('Destination', ['All'] + list(unique_destination_airports), default='All')
 
-# Filter data based on selected airports
-if 'All' not in departure_airports and 'All' not in destination_airports:
-    filtered_df = df[
-        (df['ADEP'].isin(departure_airports)) & (df['ADES'].isin(destination_airports))
-    ]
-else:
-    # If nothing selected, show best 100, worst 100, and average 100
+if ('All' not in departure_airport) and ('All' not in destination_airport):
+    filtered_df = df[(df['ADEP'].isin(departure_airport)) & (df['ADES'].isin(destination_airport))]
+    # hopefully never too big; just copy
+    # NOTE: if data for the map_df will be changed somewhere; use deep=True here. Changes will then not be reflected in filtered_df.
+    # Copy by reference (shallow) or by value (deep) https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.copy.html
+    map_df = filtered_df.copy() 
+
+# only departure seleced
+elif ('All' not in departure_airport) and (len(departure_airport) > 0):
+    filtered_df = df[(df['ADEP'].values == departure_airport)]
+    if len(filtered_df) > 300:
+        best_100 = filtered_df.sort_values(by='Average_rating', ascending=True).head(100)
+        worst_100 = filtered_df.sort_values(by='Average_rating', ascending=False).head(100)
+        avg_100 = filtered_df.sample(n=100, random_state=42)  # Sample 100 random flights
+        map_df = pd.concat([best_100, worst_100, avg_100])
+    else:
+        map_df = filtered_df.copy()
+# only destination seleced    
+elif ('All' not in destination_airport) and (len(departure_airport) > 0):
+    filtered_df = df[df['ADES'].values == destination_airport]
+    if len(filtered_df) > 300:
+        best_100 = filtered_df.sort_values(by='Average_rating', ascending=True).head(100)
+        worst_100 = filtered_df.sort_values(by='Average_rating', ascending=False).head(100)
+        avg_100 = filtered_df.sample(n=100, random_state=42)
+        map_df = pd.concat([best_100, worst_100, avg_100])
+    else:
+        map_df = filtered_df.copy()
+  # Sample 100 random flights
+else: 
+    # Nothing selected, show best 100, worst 100, and average 100
+    filtered_df = df
     best_100 = df.sort_values(by='Average_rating', ascending=True).head(100)
     worst_100 = df.sort_values(by='Average_rating', ascending=False).head(100)
     avg_100 = df.sample(n=100, random_state=42)  # Sample 100 random flights
-    filtered_df = pd.concat([best_100, worst_100, avg_100])
+    map_df = pd.concat([best_100, worst_100, avg_100])
 
-# Filters
-filtercol1, filtercol2 = st.columns(2)
+sys.stderr.write(f"Filtered: {len(filtered_df)} Map: {len(map_df)}\n")
 
-with filtercol1:
-    mapfilter = st.radio('Filter by:', ['None', 'Airline', 'Aircraft Type', 'Ratings', 'Loadfactor Density'], index=0, horizontal=True)
-    # rating_filter = st.checkbox('Ratings')
-    # density_filter = st.checkbox('Loadfactor Density')
 
-# with filtercol2:
-    # airline_filter = st.checkbox('Airlines')
-    # aircraft_filter = st.checkbox('Aircraft type')
+mapfilter = st.radio('Filters:', ["None", "Ratings","Loadfactor","Airlines","Aircraft type"], horizontal=True)
 
 # Calculate route-specific average load factor
 route_avg_load_factors = filtered_df.groupby(['ADEP', 'ADES'])['Loadfactor'].mean()
@@ -200,8 +295,9 @@ fig.add_trace(go.Scattermapbox(
     lon=df['LONGITUDE_ADES'],
     mode='markers',
     marker=dict(size=5, color='white'),
-    text=df['ADES'],
-    hoverinfo='text'
+    text=df['ADEP'],
+    hoverinfo='text',
+    showlegend=False,
 ))
 
 fig.add_trace(go.Scattermapbox(
@@ -210,16 +306,19 @@ fig.add_trace(go.Scattermapbox(
     mode='markers',
     marker=dict(size=5, color='white'),
     text=df['ADEP'],
-    hoverinfo='text'
+    hoverinfo='text',
+    showlegend=False,
 ))
 
 line_color = 'gray' 
+
 
 # else:
 #     # Default to gray for all lines when filter is not applied
 #     filtered_df['color'] = 'gray'
 
-# Add scattermapbox traces for routes using flight_id
+
+    # Add scattermapbox traces for routes using flight_id
 for _, row in filtered_df.iterrows():
     # Get route-specific average load factor
     route = (row['ADEP'], row['ADES'])
@@ -229,7 +328,8 @@ for _, row in filtered_df.iterrows():
         case 'All':
             line_color = 'gray'
         case 'Ratings':
-            line_color = airline_colors[row['Airline']]
+            sys.stderr.write(f"Rating: {row['Overall_rating']}\n")
+            line_color = airline_colors.get(row['Operator'], 'gray')
             # Apply rating filter and assign colors accordingly
             filtered_df['color'] = filtered_df['Overall_rating'].apply(assign_color)
             line_color = row['color']
@@ -245,8 +345,7 @@ for _, row in filtered_df.iterrows():
 
         # AIRLINE FILTER
         case 'Airline':
-            if row['Airline'] in airline_colors:
-                line_color = airline_colors.get(row['Airline'])
+            line_color = airline_colors.get(row['Operator'],'gray')
         
 
         # AIRCRAFT FILTER
@@ -260,14 +359,14 @@ for _, row in filtered_df.iterrows():
         lat=[row['LATITUDE_ADES'], row['LATITUDE_ADEP']],
         line=dict(color=line_color, width=1),
         opacity=0.4,
-        text=f"Route: {row['ADEP']} - {row['ADES']}<br>Avg. Load Factor: {avg_load_factor:.2f}%.<br> {row['Airline']}.<br> {row['Aircraft Variant']} <br> Rating {row['Overall_rating']}",
+        text=f"Route: {row['ADEP']} - {row['ADES']}<br>Avg. Load Factor: {avg_load_factor:.2f}%.<br> Operator: {row['Operator']}.<br> Aircraft Variant: {row['Aircraft Variant']} <br> Overall rating:{row['Overall_rating']}",
         # name=row['FLT_UID'],  # Use flight_id for unique tracing
         legendgroup=row['Overall_rating'],  # Group traces by rating for legend
-        name=row['Overall_rating']  # Use rating as legend label
+        name=f"{row['Overall_rating']} - <span style='color:#999'>{ row['AIRCRAFT_ID']}</span>"  # Use rating as legend label
 ))
     
 fig.update_layout(
-        showlegend=False,
+        showlegend=True,
         height=800,
         width=1200,
         mapbox=dict(
@@ -286,7 +385,7 @@ selected, export = st.columns([0.8, 0.2])
 with selected:
     # Display filtered data with limited rows
     max_rows_to_show = 5  # Adjust as needed
-    selected_columns = ['FLT_UID', 'NAME_ADEP', 'ADEP', 'NAME_ADES', 'ADES', 'Airline', 'Aircraft Variant', 'REGISTRATION', 'Flight Time', 'Distance (km)','CO2 rating', 'NOx rating', 'Fuel Flow rating', 'Overall_rating']  # Select desired columns
+    selected_columns = ['FLT_UID', 'NAME_ADEP', 'ADEP', 'NAME_ADES', 'ADES', 'Operator', 'Aircraft Variant', 'AIRCRAFT_ID', 'Flight Time', 'Distance (km)', 'Overall_rating']  # Select desired columns
 
     st.header('Filtered Flights:')
     if len(filtered_df) > max_rows_to_show:
@@ -327,8 +426,64 @@ with col2:
     filtered_df.sort_values(by = ['Average_rating'], ascending = False)
     st.table(filtered_df[selected_columns].tail(5))
 
+
+# engine, airline, aircraft = st.tabs(['🚀 Engine 🚀', '💺 Airline 💺', '🛩️ Aircraft 🛩️'])
+
+# with engine:
+#     st.header('🚀 Engine 🚀')
+
+#     st.subheader('Grote Plot')
+#     filtered_df.sort_values(by = ['Average_rating'], ascending = False)
+#     st.table(filtered_df[selected_columns].tail(5))
+#     st.write('korte uitleg')
+
+#     engine_col1, engine_col2 = st.columns(2)
+
+#     with engine_col1:
+#         st.subheader('Kleine Plot')
+#         filtered_df.sort_values(by = ['Average_rating'], ascending = False)
+#         st.table(filtered_df[selected_columns].tail(5))
+#         st.write('korte uitleg')
+
+#     with engine_col2:
+#         st.subheader('Kleine Plot')
+#         filtered_df.sort_values(by = ['Average_rating'], ascending = False)
+#         st.table(filtered_df[selected_columns].tail(5))
+#         st.write('korte uitleg')
+
+# with airline:
+#     st.subheader('💺 Airline 💺')
+#     filtered_df.sort_values(by = ['Average_rating'], ascending = False)
+#     st.table(filtered_df[selected_columns].tail(5))
+
+#     airline_col1, airline_col2 = st.columns(2)
+
+#     with airline_col1:
+#         filtered_df.sort_values(by = ['Average_rating'], ascending = False)
+#         st.table(filtered_df[selected_columns].tail(5))
+
+#     with airline_col2:
+#         filtered_df.sort_values(by = ['Average_rating'], ascending = False)
+#         st.table(filtered_df[selected_columns].tail(5))
+
+# with aircraft:
+#     st.subheader('🛩️ Aircraft 🛩️')
+#     filtered_df.sort_values(by = ['Average_rating'], ascending = False)
+#     st.table(filtered_df[selected_columns].tail(5))
+    
+#     aircraft_col1, aircraft_col2 = st.columns(2)
+
+#     with aircraft_col1:
+#         filtered_df.sort_values(by = ['Average_rating'], ascending = False)
+#         st.table(filtered_df[selected_columns].tail(5))
+
+#     with aircraft_col2:
+#         filtered_df.sort_values(by = ['Average_rating'], ascending = False)
+#         st.table(filtered_df[selected_columns].tail(5))
+
+
 # Lay-out
-st.sidebar.title("Introduction")
+st.sidebar.title("📖 Introduction")
 st.sidebar.write("""
 In this project, we address the pressing issue of environmental impact in aviation by creating a labeling system to evaluate the sustainability of airline routes. 
 Inspired by established practices in emissions labeling, we assigned sustainability grades (from **A to G**) to various routes and airlines based on their environmental performance.
