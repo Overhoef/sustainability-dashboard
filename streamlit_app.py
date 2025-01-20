@@ -382,21 +382,22 @@ for _, row in map_df.iterrows():
             line_color = row["color"]
 
         # DENSITY FILTER
-        case "Loadfactor Density":
+        case "Loadfactor":
             # Normalize load factor to a range of 0 to 1
             normalized_load_factor = (
                 avg_load_factor - filtered_df["Loadfactor"].min()
             ) / (filtered_df["Loadfactor"].max() - filtered_df["Loadfactor"].min())
             # Create a color based on load factor using a blue-to-yellow gradient
             line_color = plt.cm.viridis(normalized_load_factor)
+            sys.stderr.write(f"Loadfactor: {avg_load_factor}\n")
             line_color = f"rgb({int(line_color[0]*255)},{int(line_color[1]*255)},{int(line_color[2]*255)})"
 
         # AIRLINE FILTER
-        case "Airline":
+        case "Airlines":
             line_color = airline_colors.get(row["Operator"], "gray")
 
         # AIRCRAFT FILTER
-        case "Aircraft Type":
+        case "Aircraft type":
             if row["Aircraft Variant"] in aircraft_colors:
                 line_color = aircraft_colors.get(row["Aircraft Variant"])
 
@@ -613,130 +614,127 @@ with airline:
 
     st.plotly_chart(fig, use_container_width=True)
 
-    # airline_col1, airline_col2 = st.columns(2)
+    airline_col1, airline_col2 = st.columns(2)
 
-    # with airline_col1: 
-    #     # Visualization: Compare Airlines on the Same Route
+    with airline_col1: 
+        # Visualization: Compare Airlines on the Same Route
 
-    #     # Group by route (ADEP -> ADES) and airline, calculate the average rating
-    #     route_airline_ratings = (
-    #         filtered_df.groupby(['ADEP', 'ADES', 'Operator'])['Average_rating']
-    #         .mean()
-    #         .reset_index()
-    #     )
-    #     # Example: Focus on a specific route for visualization
-    #     route_data = route_airline_ratings[
-    #         (route_airline_ratings['ADEP'] == departure_airport) &
-    #         (route_airline_ratings['ADES'] ==destination_airport)
-    #     ]
-    #     # Sort by average rating for clarity
-    #     route_data = route_data.sort_values(by='Average_rating', ascending=True)
+        # Group by route (ADEP -> ADES) and airline, calculate the average rating
+        route_airline_ratings = (
+            filtered_df.groupby(['ADEP', 'ADES', 'Operator'])['Average_rating']
+            .mean()
+            .reset_index()
+        )
+        # Example: Focus on a specific route for visualization
+        route_data = route_airline_ratings[
+            (route_airline_ratings['ADEP'].isin(st.session_state.deps)) &
+            (route_airline_ratings['ADES'].isin(st.session_state.deps))
+        ]
+        # Sort by average rating for clarity
+        route_data = route_data.sort_values(by='Average_rating', ascending=True)
 
-    #     # Plotting comparison of airlines for the specific route
-    #     st.subheader(f'Average Ratings by Airlines for Route {departure_airport} -> {destination_airport}')
+        # Plotting comparison of airlines for the specific route
+        st.subheader(f'Average Ratings by Airlines for Route {departure_airport} -> {destination_airport}')
 
-    #     fig = px.bar(
-    #         route_data, 
-    #         x='Operator', 
-    #         y='Average_rating', 
-    #         color='Operator', 
-    #         title=f'Average Ratings by Airlines for Route {departure_airport} -> {destination_airport}',
-    #         labels={'Operator': 'Airline', 'Average_rating': 'Average Rating (1=A, 7=G)'},
-    #         text='Average_rating'  # Show values on top of bars
-    # )
-    #     fig.update_layout(
-    #         xaxis_tickangle=-45,  # Rotate x-axis labels for better readability
-    #         yaxis_title='Average Rating (1=A, 7=G)',
-    #         xaxis_title='Airline',
-    #         showlegend=False  # Remove legend since color is already used for differentiation
-    #     )
+        fig = px.bar(
+            route_data, 
+            x='Operator', 
+            y='Average_rating', 
+            color='Operator', 
+            title=f'Average Ratings by Airlines for Route {departure_airport} -> {destination_airport}',
+            labels={'Operator': 'Airline', 'Average_rating': 'Average Rating (1=A, 7=G)'},
+            text='Average_rating'  # Show values on top of bars
+    )
+        fig.update_layout(
+            xaxis_tickangle=-45,  # Rotate x-axis labels for better readability
+            yaxis_title='Average Rating (1=A, 7=G)',
+            xaxis_title='Airline',
+            showlegend=False  # Remove legend since color is already used for differentiation
+        )
 
-    #     st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, use_container_width=True)
 
-    # with airline_col2:        
-        # # Plotting comparison of airlines for the specific route (flight count)
-        # route_data = filtered_df[
-        #     (filtered_df['ADEP'] == departure_airport) &
-        #     (filtered_df['ADES'] == destination_airport)
-        # ]
+    with airline_col2:        
+        # Plotting comparison of airlines for the specific route (flight count)
+        route_data = filtered_df[
+            (filtered_df['ADEP'].isin(st.session_state.deps)) &
+            (filtered_df['ADES'].isin(st.session_state.deps))
+        ]
 
-        # # Calculate total flights per airline (after filtering for the specific route)
-        # route_airline_stats = (
-        #     route_data.groupby(['Operator']) 
-        #     .agg(
-        #         Total_Flights=('Operator', 'count')  # Count the number of flights
-        #     )
-        #     .reset_index()
-        # )
+        # Calculate total flights per airline (after filtering for the specific route)
+        route_airline_stats = (
+            route_data.groupby(['Operator']) 
+            .agg(
+                Total_Flights=('Operator', 'count')  # Count the number of flights
+            )
+            .reset_index()
+        )
 
-        # st.subheader(f'Total Flights by Airlines for Route {departure_airport} -> {destination_airport}')
+        st.subheader(f'Total Flights by Airlines for Route {departure_airport} -> {destination_airport}')
 
-        # fig_flights = px.bar(
-        #     route_airline_stats, 
-        #     x='Operator', 
-        #     y='Total_Flights', 
-        #     color='Operator', 
-        #     title=f'Total Flights by Airlines for Route {departure_airport} -> {destination_airport}',
-        #     labels={'Operator': 'Airline', 'Total_Flights': 'Total Flights'},
-        #     text='Total_Flights'  # Show values on top of bars
-        # )
-        # fig_flights.update_layout(
-        #     xaxis_tickangle=-45,  # Rotate x-axis labels for better readability
-        #     yaxis_title='Total Flights',
-        #     xaxis_title='Airline',
-        #     showlegend=False  # Remove legend since color is already used for differentiation
-        # )
+        fig_flights = px.bar(
+            route_airline_stats, 
+            x='Operator', 
+            y='Total_Flights', 
+            color='Operator', 
+            title=f'Total Flights by Airlines for Route {departure_airport} -> {destination_airport}',
+            labels={'Operator': 'Airline', 'Total_Flights': 'Total Flights'},
+            text='Total_Flights'  # Show values on top of bars
+        )
+        fig_flights.update_layout(
+            xaxis_tickangle=-45,  # Rotate x-axis labels for better readability
+            yaxis_title='Total Flights',
+            xaxis_title='Airline',
+            showlegend=False  # Remove legend since color is already used for differentiation
+        )
 
-        # st.plotly_chart(fig_flights, use_container_width=True)
+        st.plotly_chart(fig_flights, use_container_width=True)
 
 with aircraft:
     st.header('🛩️ Aircraft 🛩️')
-    # # Group by route, operator, and aircraft type, calculate average rating
-    # route_operator_aircraft_ratings = (
-    #     filtered_df.groupby(['ADEP', 'ADES', 'Operator', 'Aircraft Variant'])['Average_rating']
-    #     .mean()
-    #     .reset_index()
-    # )
+    # Group by route, operator, and aircraft type, calculate average rating
+    route_operator_aircraft_ratings = (
+        filtered_df.groupby(['ADEP', 'ADES', 'Operator', 'Aircraft Variant'])['Average_rating']
+        .mean()
+        .reset_index()
+    )
 
-    # if departure_airport and destination_airport:
-    #     # Filter data for the selected route
-    #     route_data = route_operator_aircraft_ratings[
-    #         (route_operator_aircraft_ratings['ADEP'] == departure_airport) &
-    #         (route_operator_aircraft_ratings['ADES'] == destination_airport)
-    #     ]
+    if departure_airport and destination_airport:
+        # Filter data for the selected route
+        route_data = route_operator_aircraft_ratings[
+            (route_operator_aircraft_ratings['ADEP'].isin(st.session_state.deps)) &
+            (route_operator_aircraft_ratings['ADES'].isin(st.session_state.deps))
+        ]
 
-    #     # Check if data is available for the selected route
-    #     if route_data.empty:
-    #         st.warning(f"No data found for route {departure_airport} -> {destination_airport}.")
-    #     else:
-    #         # Sort by average rating for clarity
-    #         route_data = route_data.sort_values(by='Average_rating', ascending=True)
+        # Check if data is available for the selected route
+            # Sort by average rating for clarity
+        route_data = route_data.sort_values(by='Average_rating', ascending=True)
 
-    #         # Combine operator and aircraft variant for x-axis labels
-    #         route_data['Label'] = route_data['Operator'] + ' (' + route_data['Aircraft Variant'] + ')'
+            # Combine operator and aircraft variant for x-axis labels
+        route_data['Label'] = route_data['Operator'] + ' (' + route_data['Aircraft Variant'] + ')'
 
-    #         # Plotting comparison of airlines and aircraft types for the specific route
-    #         st.subheader(f'Average Ratings by Airline and Aircraft Type for Route {departure_airport} -> {destination_airport}')
+            # Plotting comparison of airlines and aircraft types for the specific route
+        st.subheader(f'Average Ratings by Airline and Aircraft Type for Route {departure_airport} -> {destination_airport}')
 
-    #         fig = px.bar(
-    #             route_data,
-    #             x='Operator',
-    #             y='Average_rating',
-    #             color='Aircraft Variant',
-    #             barmode='group',
-    #             title=f'Average Ratings by Airline and Aircraft Type for Route {departure_airport} -> {destination_airport}',
-    #             labels={'Operator': 'Airline', 'Average_rating': 'Average Rating (1=A, 7=G)'},
-    #             text='Average_rating'  # Show values on top of bars
-    #         )
-    #         fig.update_layout(
-    #             xaxis_tickangle=-45,  # Rotate x-axis labels for better readability
-    #             yaxis_title='Average Rating (1=A, 7=G)',
-    #              xaxis_title='Airline (Aircraft Variant)'
-    #         )
+        fig = px.bar(
+            route_data,
+            x='Operator',
+            y='Average_rating',
+            color='Aircraft Variant',
+            barmode='group',
+            title=f'Average Ratings by Airline and Aircraft Type for Route {departure_airport} -> {destination_airport}',
+            labels={'Operator': 'Airline', 'Average_rating': 'Average Rating (1=A, 7=G)'},
+            text='Average_rating'  # Show values on top of bars
+            )
+        fig.update_layout(
+            xaxis_tickangle=-45,  # Rotate x-axis labels for better readability
+            yaxis_title='Average Rating (1=A, 7=G)',
+            xaxis_title='Airline (Aircraft Variant)'
+            )
 
-    #         st.plotly_chart(fig, use_container_width=True)
-    # else:
-    #     st.info("Please enter departure and destination airport codes to view airline and aircraft type comparisons.")
+        st.plotly_chart(fig, use_container_width=True)
+    else:
+        st.info("Please enter departure and destination airport codes to view airline and aircraft type comparisons.")
         
     aircraft_col1, aircraft_col2 = st.columns(2)
 
