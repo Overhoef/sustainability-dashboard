@@ -38,7 +38,7 @@ def load_data():
         'LONGITUDE_ADES',
         'Loadfactor'    
     ]) # pd.read_csv('Sustainabilty_dashboard_2025.csv')
-            return df
+        return df
 
 df = load_data()
 
