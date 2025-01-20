@@ -184,46 +184,74 @@ airline_colors = {
 }
 
 aircraft_colors = {
-    'A319-100': '#C0C0C0',  # Light Grey
-    'A320-200': '#FFA07A',  # Light Salmon
-    'A321-200': '#F08080',  # Light Coral
-    'A330-300': '#FFC0CB',  # Pink
-    'A330-900': '#8B0000',  # Dark Red
-    'A350-900': '#008B8B',  # Teal
-    'A350-1000': '#A52A2A',  # Brown
-    'A380-800': '#FFFF00',  # Yellow
-    'B737-800': '#00FFFF',  # Cyan
-    'B737-MAX 8': '#FF00FF',  # Magenta
-    'B737-700': '#800080',  # Purple
-    'B737-900': '#A020F0',  # Purple (deeper)
-    'B737-MAX 9': '#00BFFF',  # Deep Sky Blue
-    'B737-MAX 10': '#FFC0CB',  # Pink
-    'B747-400': '#8B0000',  # Dark Red
-    'B747-8': '#008B8B',  # Teal
-    'B747-8F': '#A52A2A',  # Brown
-    'B757-200': '#FFFF00',  # Yellow
-    'B757-300': '#008080',  # Teal
-    'B767-300': '#800080',  # Purple
-    'B767-300ER': '#00008B',  # Dark Blue
-    'B767-400ER': '#F0E68C',  # Goldenrod
-    'B777-200': '#008080',  # Teal
-    'B777-200ER': '#FF0000',  # Red
-    'B777-300': '#0000FF',  # Blue
-    'B777-300ER': '#008000',  # Green
-    'B777-9': '#FFFF00',  # Yellow
-    'B777F': '#00FFFF',  # Cyan
-    'B787-8': '#FF00FF',  # Magenta
-    'B787-9': '#C0C0C0',  # Light Grey
-    'B787-10': '#FFA07A',  # Light Salmon
-    'E170': '#F08080',  # Light Coral
-    'E175': '#FFC0CB',  # Pink
-    'E190': '#8B0000',  # Dark Red
-    'E195': '#008B8B',  # Teal
-    'CRJ-900': '#A52A2A',  # Brown
-    'CRJ-700': '#FFFF00',  # Yellow
-    'CRJ-200': '#008080',  # Teal
-    'ATR 72': '#800080',  # Purple
-    'ATR 42': '#00008B',  # Dark Blue
+    '777-300ER': '#FF5733',
+    'A350-900XWB': '#33FF57',
+    'A330-300': '#3357FF',
+    '787-8': '#FF33A8',
+    '777-200ER': '#33FFF5',
+    'A330-300E': '#F5FF33',
+    '787-9': '#A833FF',
+    'A321neoLR': '#FF8333',
+    '737-800': '#33FF83',
+    '747-400F': '#5733FF',
+    '737-900': '#FFA833',
+    '737-700': '#83FF33',
+    '787-10': '#33A8FF',
+    '747-400(SF)': '#FF3357',
+    '747-8F': '#F533FF',
+    'A330-900neo': '#FF5733',
+    'A380-800': '#33FF57',
+    'A320-200': '#3357FF',
+    'A319-100': '#FF33A8',
+    '777F': '#33FFF5',
+    '737-8': '#F5FF33',
+    'A220-300': '#A833FF',
+    'ERJ195 AR': '#FF8333',
+    'A320neo': '#33FF83',
+    'ERJ190-100 LR': '#5733FF',
+    'A321-200': '#FFA833',
+    'ERJ170-100 LR': '#83FF33',
+    'A321neo ACF': '#33A8FF',
+    'A321-100': '#FF3357',
+    '767-300ER': '#F533FF',
+    'A330-200': '#FF5733',
+    '767-400ER': '#33FF57',
+    'A350-1000XWB': '#3357FF',
+    'A318-100': '#FF33A8',
+    'A220-100': '#33FFF5',
+    'ACJ319': '#F5FF33',
+    '757-200(ETOPS)': '#A833FF',
+    'ATR 42-300': '#FF8333',
+    '737-8200': '#33FF83',
+    'ERJ175 LR': '#5733FF',
+    'ERJ175 STD': '#FFA833',
+    'J32': '#83FF33',
+    '777-200LR': '#33A8FF',
+    '737-900ER': '#FF3357',
+    'ATR 72-500': '#F533FF',
+    'A321neo': '#FF5733',
+    'A330-200F': '#33FF57',
+    'ERJ195 LR': '#3357FF',
+    'J31': '#FF33A8',
+    '757-300': '#33FFF5',
+    'ERJ190-100 SR': '#F5FF33',
+    'DO328-110': '#A833FF',
+    'ACJ319neo': '#FF8333',
+    '737-300': '#33FF83',
+    'ERJ190-100 IGW (AR)': '#5733FF',
+    'DHC-7-102': '#FFA833',
+    'A330-300P2F': '#83FF33',
+    'A340-300E': '#33A8FF',
+    'ERJ190-100 STD': '#FF3357',
+    'EMB135BJ (Legacy 600)': '#F533FF',
+    'CHALLENGER 850': '#FF5733',
+    '757-200': '#33FF57',
+    'REIMS-CESSNA F406': '#3357FF',
+    'ERJ190-100 ECJ': '#FF33A8',
+    '747-400ERF': '#33FFF5',
+    'DO228-202K': '#F5FF33',
+    '737 BBJ': '#A833FF',
+    '747-400(BCF)': '#FF8333'
 }
 
 # Get unique airports
@@ -427,59 +455,59 @@ with col2:
     st.table(filtered_df[selected_columns].tail(5))
 
 
-# engine, airline, aircraft = st.tabs(['🚀 Engine 🚀', '💺 Airline 💺', '🛩️ Aircraft 🛩️'])
+engine, airline, aircraft = st.tabs(['🚀 Engine 🚀', '💺 Airline 💺', '🛩️ Aircraft 🛩️'])
 
-# with engine:
-#     st.header('🚀 Engine 🚀')
+with engine:
+    st.header('🚀 Engine 🚀')
 
-#     st.subheader('Grote Plot')
-#     filtered_df.sort_values(by = ['Average_rating'], ascending = False)
-#     st.table(filtered_df[selected_columns].tail(5))
-#     st.write('korte uitleg')
+    st.subheader('Grote Plot')
+    filtered_df.sort_values(by = ['Average_rating'], ascending = False)
+    st.table(filtered_df[selected_columns].tail(5))
+    st.write('korte uitleg')
 
-#     engine_col1, engine_col2 = st.columns(2)
+    engine_col1, engine_col2 = st.columns(2)
 
-#     with engine_col1:
-#         st.subheader('Kleine Plot')
-#         filtered_df.sort_values(by = ['Average_rating'], ascending = False)
-#         st.table(filtered_df[selected_columns].tail(5))
-#         st.write('korte uitleg')
+    with engine_col1:
+        st.subheader('Kleine Plot')
+        filtered_df.sort_values(by = ['Average_rating'], ascending = False)
+        st.table(filtered_df[selected_columns].tail(5))
+        st.write('korte uitleg')
 
-#     with engine_col2:
-#         st.subheader('Kleine Plot')
-#         filtered_df.sort_values(by = ['Average_rating'], ascending = False)
-#         st.table(filtered_df[selected_columns].tail(5))
-#         st.write('korte uitleg')
+    with engine_col2:
+        st.subheader('Kleine Plot')
+        filtered_df.sort_values(by = ['Average_rating'], ascending = False)
+        st.table(filtered_df[selected_columns].tail(5))
+        st.write('korte uitleg')
 
-# with airline:
-#     st.subheader('💺 Airline 💺')
-#     filtered_df.sort_values(by = ['Average_rating'], ascending = False)
-#     st.table(filtered_df[selected_columns].tail(5))
+with airline:
+    st.subheader('💺 Airline 💺')
+    filtered_df.sort_values(by = ['Average_rating'], ascending = False)
+    st.table(filtered_df[selected_columns].tail(5))
 
-#     airline_col1, airline_col2 = st.columns(2)
+    airline_col1, airline_col2 = st.columns(2)
 
-#     with airline_col1:
-#         filtered_df.sort_values(by = ['Average_rating'], ascending = False)
-#         st.table(filtered_df[selected_columns].tail(5))
+    with airline_col1:
+        filtered_df.sort_values(by = ['Average_rating'], ascending = False)
+        st.table(filtered_df[selected_columns].tail(5))
 
-#     with airline_col2:
-#         filtered_df.sort_values(by = ['Average_rating'], ascending = False)
-#         st.table(filtered_df[selected_columns].tail(5))
+    with airline_col2:
+        filtered_df.sort_values(by = ['Average_rating'], ascending = False)
+        st.table(filtered_df[selected_columns].tail(5))
 
-# with aircraft:
-#     st.subheader('🛩️ Aircraft 🛩️')
-#     filtered_df.sort_values(by = ['Average_rating'], ascending = False)
-#     st.table(filtered_df[selected_columns].tail(5))
+with aircraft:
+    st.subheader('🛩️ Aircraft 🛩️')
+    filtered_df.sort_values(by = ['Average_rating'], ascending = False)
+    st.table(filtered_df[selected_columns].tail(5))
     
-#     aircraft_col1, aircraft_col2 = st.columns(2)
+    aircraft_col1, aircraft_col2 = st.columns(2)
 
-#     with aircraft_col1:
-#         filtered_df.sort_values(by = ['Average_rating'], ascending = False)
-#         st.table(filtered_df[selected_columns].tail(5))
+    with aircraft_col1:
+        filtered_df.sort_values(by = ['Average_rating'], ascending = False)
+        st.table(filtered_df[selected_columns].tail(5))
 
-#     with aircraft_col2:
-#         filtered_df.sort_values(by = ['Average_rating'], ascending = False)
-#         st.table(filtered_df[selected_columns].tail(5))
+    with aircraft_col2:
+        filtered_df.sort_values(by = ['Average_rating'], ascending = False)
+        st.table(filtered_df[selected_columns].tail(5))
 
 
 # Lay-out
