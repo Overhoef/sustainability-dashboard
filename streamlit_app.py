@@ -454,61 +454,59 @@ with col2:
     filtered_df.sort_values(by = ['Average_rating'], ascending = False)
     st.table(filtered_df[selected_columns].tail(5))
 
+# engine, airline, aircraft = st.tabs(['🚀 Engine 🚀', '💺 Airline 💺', '🛩️ Aircraft 🛩️'])
 
-engine, airline, aircraft = st.tabs(['🚀 Engine 🚀', '💺 Airline 💺', '🛩️ Aircraft 🛩️'])
+# with engine:
+#     st.header('🚀 Engine 🚀')
 
-with engine:
-    st.header('🚀 Engine 🚀')
+#     st.subheader('Grote Plot')
+#     filtered_df.sort_values(by = ['Average_rating'], ascending = False)
+#     st.table(filtered_df[selected_columns].tail(5))
+#     st.write('korte uitleg')
 
-    st.subheader('Grote Plot')
-    filtered_df.sort_values(by = ['Average_rating'], ascending = False)
-    st.table(filtered_df[selected_columns].tail(5))
-    st.write('korte uitleg')
+#     engine_col1, engine_col2 = st.columns(2)
 
-    engine_col1, engine_col2 = st.columns(2)
+#     with engine_col1:
+#         st.subheader('Kleine Plot')
+#         filtered_df.sort_values(by = ['Average_rating'], ascending = False)
+#         st.table(filtered_df[selected_columns].tail(5))
+#         st.write('korte uitleg')
 
-    with engine_col1:
-        st.subheader('Kleine Plot')
-        filtered_df.sort_values(by = ['Average_rating'], ascending = False)
-        st.table(filtered_df[selected_columns].tail(5))
-        st.write('korte uitleg')
+#     with engine_col2:
+#         st.subheader('Kleine Plot')
+#         filtered_df.sort_values(by = ['Average_rating'], ascending = False)
+#         st.table(filtered_df[selected_columns].tail(5))
+#         st.write('korte uitleg')
 
-    with engine_col2:
-        st.subheader('Kleine Plot')
-        filtered_df.sort_values(by = ['Average_rating'], ascending = False)
-        st.table(filtered_df[selected_columns].tail(5))
-        st.write('korte uitleg')
+# with airline:
+#     st.subheader('💺 Airline 💺')
+#     filtered_df.sort_values(by = ['Average_rating'], ascending = False)
+#     st.table(filtered_df[selected_columns].tail(5))
 
-with airline:
-    st.subheader('💺 Airline 💺')
-    filtered_df.sort_values(by = ['Average_rating'], ascending = False)
-    st.table(filtered_df[selected_columns].tail(5))
+#     airline_col1, airline_col2 = st.columns(2)
 
-    airline_col1, airline_col2 = st.columns(2)
+#     with airline_col1:
+#         filtered_df.sort_values(by = ['Average_rating'], ascending = False)
+#         st.table(filtered_df[selected_columns].tail(5))
 
-    with airline_col1:
-        filtered_df.sort_values(by = ['Average_rating'], ascending = False)
-        st.table(filtered_df[selected_columns].tail(5))
+#     with airline_col2:
+#         filtered_df.sort_values(by = ['Average_rating'], ascending = False)
+#         st.table(filtered_df[selected_columns].tail(5))
 
-    with airline_col2:
-        filtered_df.sort_values(by = ['Average_rating'], ascending = False)
-        st.table(filtered_df[selected_columns].tail(5))
-
-with aircraft:
-    st.subheader('🛩️ Aircraft 🛩️')
-    filtered_df.sort_values(by = ['Average_rating'], ascending = False)
-    st.table(filtered_df[selected_columns].tail(5))
+# with aircraft:
+#     st.subheader('🛩️ Aircraft 🛩️')
+#     filtered_df.sort_values(by = ['Average_rating'], ascending = False)
+#     st.table(filtered_df[selected_columns].tail(5))
     
-    aircraft_col1, aircraft_col2 = st.columns(2)
+#     aircraft_col1, aircraft_col2 = st.columns(2)
 
-    with aircraft_col1:
-        filtered_df.sort_values(by = ['Average_rating'], ascending = False)
-        st.table(filtered_df[selected_columns].tail(5))
+#     with aircraft_col1:
+#         filtered_df.sort_values(by = ['Average_rating'], ascending = False)
+#         st.table(filtered_df[selected_columns].tail(5))
 
-    with aircraft_col2:
-        filtered_df.sort_values(by = ['Average_rating'], ascending = False)
-        st.table(filtered_df[selected_columns].tail(5))
-
+#     with aircraft_col2:
+#         filtered_df.sort_values(by = ['Average_rating'], ascending = False)
+#         st.table(filtered_df[selected_columns].tail(5))
 
 # Lay-out
 st.sidebar.title("📖 Introduction")
