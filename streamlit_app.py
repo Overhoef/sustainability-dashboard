@@ -17,25 +17,30 @@ import sys
 st.set_page_config(layout="wide")  # Set wide mode as default
 
 # Data
-df = pd.read_csv('Sustainabilty_dashboard_2025.csv', usecols=[
-    'ADEP', 
-    'ADES', 
-    'AIRCRAFT_ID',
-    'Operator',
-    'Aircraft Variant',
-    'Average_rating',
-    'Distance (km)',
-    'Flight Time', 
-    'FLT_UID', 
-    'Overall_rating', 
-    'NAME_ADEP', 
-    'LONGITUDE_ADEP',
-    'LATITUDE_ADEP',
-    'NAME_ADES', 
-    'LATITUDE_ADES',
-    'LONGITUDE_ADES',
-    'Loadfactor'    
-]) # pd.read_csv('Sustainabilty_dashboard_2025.csv')
+@st.cache_data
+def load_data():
+        df = pd.read_csv('Sustainabilty_dashboard_2025.csv', usecols=[
+        'ADEP', 
+        'ADES', 
+        'AIRCRAFT_ID',
+        'Operator',
+        'Aircraft Variant',
+        'Average_rating',
+        'Distance (km)',
+        'Flight Time', 
+        'FLT_UID', 
+        'Overall_rating', 
+        'NAME_ADEP', 
+        'LONGITUDE_ADEP',
+        'LATITUDE_ADEP',
+        'NAME_ADES', 
+        'LATITUDE_ADES',
+        'LONGITUDE_ADES',
+        'Loadfactor'    
+    ]) # pd.read_csv('Sustainabilty_dashboard_2025.csv')
+            return df
+
+df = load_data()
 
 gdf = gpd.GeoDataFrame(
     df, geometry=gpd.points_from_xy(df.LONGITUDE_ADES, df.LATITUDE_ADES), crs="EPSG:4326"
