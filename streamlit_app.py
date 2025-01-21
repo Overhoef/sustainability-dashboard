@@ -32,6 +32,7 @@ df = pd.read_csv(
         "Flight Time",
         "FLT_UID",
         "Overall_rating",
+        "Loadfactor (%)",
         "NAME_ADEP",
         "LONGITUDE_ADEP",
         "LATITUDE_ADEP",
@@ -40,7 +41,7 @@ df = pd.read_csv(
         "LONGITUDE_ADES",
         "Loadfactor",
     ],
-)  # pd.read_csv('Sustainabilty_dashboard_2025.csv')
+)  #  df = pd.read_csv('Sustainabilty_dashboard_2025.csv')
 
 gdf = gpd.GeoDataFrame(
     df,
@@ -269,7 +270,7 @@ if "All" in st.session_state.dests:
 def depSelected():
     sys.stderr.write(f"dest change: {st.session_state.deps}\n")
     if "All" in st.session_state.deps:
-        #    st.session_state.deplist = ["All"] + list(unique_departure_airports)
+        #   st.session_state.deplist = ["All"] + list(unique_departure_airports)
         st.session_state.deps = list(unique_departure_airports)
         st.session_state.destlist = ["EHAM"]
         st.session_state.dests = ["EHAM"]
@@ -332,19 +333,7 @@ route_avg_load_factors = filtered_df.groupby(["ADEP", "ADES"])["Loadfactor"].mea
 # Create a Plotly figure
 fig = go.Figure()
 
-#     # Add scattermapbox traces for departure and arrival airports
-fig.add_trace(
-    go.Scattermapbox(
-        lat=df["LATITUDE_ADES"],
-        lon=df["LONGITUDE_ADES"],
-        mode="markers",
-        marker=dict(size=5, color="white"),
-        text=df["ADEP"],
-        hoverinfo="text",
-        showlegend=False,
-    )
-)
-
+# Add scattermapbox traces for the airports
 fig.add_trace(
     go.Scattermapbox(
         lat=df["LATITUDE_ADEP"],
@@ -358,7 +347,6 @@ fig.add_trace(
 )
 
 line_color = "gray"
-
 
 # else:
 #     # Default to gray for all lines when filter is not applied
@@ -454,7 +442,7 @@ with selected:
         st.text(
             f"Showing select amount of columns (most important ones) and the first {max_rows_to_show} rows. Total rows: {len(filtered_df)}"
         )
-    st.table(filtered_df[selected_columns].head(max_rows_to_show))
+    st.table(filtered_df.head(max_rows_to_show))
 
 with export:
     # Download button for filtered data
@@ -491,10 +479,10 @@ with col2:
     st.table(filtered_df[selected_columns].tail(5))
 
 
-engine, airline, aircraft = st.tabs(['🚀 Engine 🚀', '💺 Airline 💺', '🛩️ Aircraft 🛩️'])
+engine, airline, aircraft, loadfactor = st.tabs(['🚀 Engine 🚀', '💺 Airlines 💺', '✈️ Aircraft ✈️', '🛩️ Loadfactor 🛩️', ])
 
 with engine:
-    st.header('🚀 Engine 🚀')
+    st.header('🚀 Engine Insights 🚀')
 
     # Ensure 'Average_rating' is numeric
     df['Average_rating'] = pd.to_numeric(df['Average_rating'], errors='coerce')
@@ -502,7 +490,7 @@ with engine:
     # Group data by 'Engine Model' and calculate average rating
     avg_ratings_by_engine_model = df.groupby('Engine Model')['Average_rating'].mean().sort_values()
 
-    st.title("Average Ratings by Engine Model")
+    st.subheader("Average Ratings by Engine Model")
 
     # Create a Plotly Express figure
     fig = px.bar(
@@ -512,13 +500,13 @@ with engine:
         color='Average_rating',
         color_continuous_scale='RdBu',  # Red-blue color scale for full range
         title='Average Ratings by Engine Model',
-        labels={'Engine Model': 'Engine Model', 'Average_rating': 'Average Rating (1=A, 7=G)'},
+        labels={'Engine Model': 'Engine Model', 'Average_rating': 'Average Rating'},
         text='Average_rating'
     )
 
     # Update layout for readability
     fig.update_layout(
-        xaxis_tickangle=-45,
+        xaxis_tickangle=-60,
         yaxis_title='Average Rating (1=A, 7=G)',
         xaxis_title='Engine Model',
         showlegend=False  # Color indicates rating
@@ -539,36 +527,36 @@ with engine:
         worst_20 = avg_ratings_by_engine_model.head(20)
 
         fig = px.bar(
-            best_20.reset_index(),
-            x='Engine Model',
-            y='Average_rating',
-            color='Average_rating',
-            color_continuous_scale='RdBu',
-            title='Top 20 Motoren met de Hoogste Gemiddelde Beoordeling',
-            labels={'Engine Model': 'Engine type',},
-            text='Average_rating'
-    )
-        fig.update_layout(
-            xaxis_tickangle=-45,
-            yaxis_title='Average Rating',
-            xaxis_title='Engine type',
-            showlegend=False
-        )
-        st.plotly_chart(fig, use_container_width=True)
-
-    with engine_col2:
-        fig = px.bar(
             worst_20.reset_index(),
             x='Engine Model',
             y='Average_rating',
             color='Average_rating',
             color_continuous_scale='RdBu',  # Omgekeerde rood-blauw schaal
-            title='Top 20 Motoren met de Laagste Gemiddelde Beoordeling',
+            title='Top 20 Engine Rated the Lowest on Average',
             labels={'Engine Model': 'Motormodel'},
             text='Average_rating'
     )
         fig.update_layout(
-            xaxis_tickangle=-45,
+            xaxis_tickangle=-60,
+            yaxis_title='Average Rating',
+            xaxis_title='Engine type',
+            showlegend=False
+            )
+        st.plotly_chart(fig, use_container_width=True)
+
+    with engine_col2:
+        fig = px.bar(
+            best_20.reset_index(),
+            x='Engine Model',
+            y='Average_rating',
+            color='Average_rating',
+            color_continuous_scale='RdBu',
+            title='Top 20 Engine Rated the Highes on Average',
+            labels={'Engine Model': 'Engine type',},
+            text='Average_rating'
+    )
+        fig.update_layout(
+            xaxis_tickangle=-60,
             yaxis_title='Average Rating',
             xaxis_title='Engine type',
             showlegend=False
@@ -576,9 +564,9 @@ with engine:
         st.plotly_chart(fig, use_container_width=True)
 
 with airline:
-    st.header('💺 Airline 💺')
+    st.header('💺 Airlines Insights 💺')
     
-    st.subheader("Average Ratings Across Routes")
+    st.subheader("Average Ratings Per Airline Across Routes")
     # Create a selectbox for airline selection
     selected_airline = st.selectbox("Select Airline", df['Operator'].unique(), index=6)
 
@@ -606,7 +594,7 @@ with airline:
         text='Average_rating'  # Show values on top of bars
     )
     fig.update_layout(
-        xaxis_tickangle=-45,  # Rotate x-axis labels for better readability
+        xaxis_tickangle=-90,  # Rotate x-axis labels for better readability
         yaxis_title='Average Rating',
         xaxis_title='Route',
         showlegend=False  # Remove legend since color is already used for differentiation
@@ -618,7 +606,6 @@ with airline:
 
     with airline_col1: 
         # Visualization: Compare Airlines on the Same Route
-
         # Group by route (ADEP -> ADES) and airline, calculate the average rating
         route_airline_ratings = (
             filtered_df.groupby(['ADEP', 'ADES', 'Operator'])['Average_rating']
@@ -628,25 +615,25 @@ with airline:
         # Example: Focus on a specific route for visualization
         route_data = route_airline_ratings[
             (route_airline_ratings['ADEP'].isin(st.session_state.deps)) &
-            (route_airline_ratings['ADES'].isin(st.session_state.deps))
+            (route_airline_ratings['ADES'].isin(st.session_state.dests))
         ]
         # Sort by average rating for clarity
         route_data = route_data.sort_values(by='Average_rating', ascending=True)
 
         # Plotting comparison of airlines for the specific route
-        st.subheader(f'Average Ratings by Airlines for Route {departure_airport} -> {destination_airport}')
+        # st.subheader(f'Average Ratings by Airlines for Route {", ".join(st.session_state.deps)} -> {", ".join(st.session_state.dests)}')
 
         fig = px.bar(
             route_data, 
             x='Operator', 
             y='Average_rating', 
             color='Operator', 
-            title=f'Average Ratings by Airlines for Route {departure_airport} -> {destination_airport}',
-            labels={'Operator': 'Airline', 'Average_rating': 'Average Rating (1=A, 7=G)'},
+            title=f'Average Ratings by Airlines for Route {", ".join(st.session_state.deps)} -> {", ".join(st.session_state.dests)}',
+            labels={'Operator': 'Airline', 'Average_rating': 'Average Rating'},
             text='Average_rating'  # Show values on top of bars
     )
         fig.update_layout(
-            xaxis_tickangle=-45,  # Rotate x-axis labels for better readability
+            xaxis_tickangle=-60,  # Rotate x-axis labels for better readability
             yaxis_title='Average Rating (1=A, 7=G)',
             xaxis_title='Airline',
             showlegend=False  # Remove legend since color is already used for differentiation
@@ -658,7 +645,7 @@ with airline:
         # Plotting comparison of airlines for the specific route (flight count)
         route_data = filtered_df[
             (filtered_df['ADEP'].isin(st.session_state.deps)) &
-            (filtered_df['ADES'].isin(st.session_state.deps))
+            (filtered_df['ADES'].isin(st.session_state.dests))
         ]
 
         # Calculate total flights per airline (after filtering for the specific route)
@@ -670,14 +657,14 @@ with airline:
             .reset_index()
         )
 
-        st.subheader(f'Total Flights by Airlines for Route {departure_airport} -> {destination_airport}')
+        # st.subheader(f'Total Flights by Airlines for Route {", ".join(st.session_state.deps)} -> {", ".join(st.session_state.dests)}')
 
         fig_flights = px.bar(
             route_airline_stats, 
             x='Operator', 
             y='Total_Flights', 
             color='Operator', 
-            title=f'Total Flights by Airlines for Route {departure_airport} -> {destination_airport}',
+            title=f'Total Flights by Airlines for Route {", ".join(st.session_state.deps)} -> {", ".join(st.session_state.dests)}',
             labels={'Operator': 'Airline', 'Total_Flights': 'Total Flights'},
             text='Total_Flights'  # Show values on top of bars
         )
@@ -691,7 +678,7 @@ with airline:
         st.plotly_chart(fig_flights, use_container_width=True)
 
 with aircraft:
-    st.header('🛩️ Aircraft 🛩️')
+    st.header('✈️ Aircraft Insights ✈️')
     # Group by route, operator, and aircraft type, calculate average rating
     route_operator_aircraft_ratings = (
         filtered_df.groupby(['ADEP', 'ADES', 'Operator', 'Aircraft Variant'])['Average_rating']
@@ -703,7 +690,7 @@ with aircraft:
         # Filter data for the selected route
         route_data = route_operator_aircraft_ratings[
             (route_operator_aircraft_ratings['ADEP'].isin(st.session_state.deps)) &
-            (route_operator_aircraft_ratings['ADES'].isin(st.session_state.deps))
+            (route_operator_aircraft_ratings['ADES'].isin(st.session_state.dests))
         ]
 
         # Check if data is available for the selected route
@@ -714,7 +701,7 @@ with aircraft:
         route_data['Label'] = route_data['Operator'] + ' (' + route_data['Aircraft Variant'] + ')'
 
             # Plotting comparison of airlines and aircraft types for the specific route
-        st.subheader(f'Average Ratings by Airline and Aircraft Type for Route {departure_airport} -> {destination_airport}')
+        st.subheader(f'Average Ratings by Airline and Aircraft Type for Route {", ".join(st.session_state.deps)} -> {", ".join(st.session_state.dests)}')
 
         fig = px.bar(
             route_data,
@@ -722,12 +709,12 @@ with aircraft:
             y='Average_rating',
             color='Aircraft Variant',
             barmode='group',
-            title=f'Average Ratings by Airline and Aircraft Type for Route {departure_airport} -> {destination_airport}',
+            title=f'Average Ratings by Airline and Aircraft Type for Route {", ".join(st.session_state.deps)} -> {", ".join(st.session_state.dests)}',
             labels={'Operator': 'Airline', 'Average_rating': 'Average Rating (1=A, 7=G)'},
             text='Average_rating'  # Show values on top of bars
             )
         fig.update_layout(
-            xaxis_tickangle=-45,  # Rotate x-axis labels for better readability
+            xaxis_tickangle=-60,  # Rotate x-axis labels for better readability
             yaxis_title='Average Rating (1=A, 7=G)',
             xaxis_title='Airline (Aircraft Variant)'
             )
@@ -735,7 +722,7 @@ with aircraft:
         st.plotly_chart(fig, use_container_width=True)
     else:
         st.info("Please enter departure and destination airport codes to view airline and aircraft type comparisons.")
-        
+
     aircraft_col1, aircraft_col2 = st.columns(2)
 
     with aircraft_col1:
@@ -743,27 +730,27 @@ with aircraft:
         # df['Average_rating'] = pd.to_numeric(df['Average_rating'], errors='coerce')
 
         # Calculate average rating per variant and select top 10 (nlargest for descending order)
-        top_10_variants = df.groupby('Aircraft Variant')['Average_rating'].mean().nlargest(10)
+        top_10_variants = df.groupby('Aircraft Variant')['Average_rating'].mean().nlargest(20)
 
-        st.subheader('Worst 10 Aircraft Variants by Average Rating')
+        # st.subheader('Top 20 Worst Aircraft Variants by Average Rating')
 
-        fig = px.bar(
+        fig1 = px.bar(
                 top_10_variants.to_frame().reset_index(),  # Convert to DataFrame for plotting
                 x='Aircraft Variant',
                 y='Average_rating',
                 color='Average_rating',  # Use color for visual differentiation
-                title='Top 10 Aircraft Variants by Average Rating (Worst to Best)',
-                labels={'Aircraft Variant': 'Aircraft Variant', 'Average_rating': 'Average Rating (1=A, 7=G)'},
+                title='Top 20 Aircraft Variants by Average Rating (Worst to Best)',
+                labels={'Aircraft Variant': 'Aircraft Variant', 'Average_rating': 'Average Rating'},
                 text='Average_rating'  # Show values on top of bars
             )
-        fig.update_layout(
-                xaxis_tickangle=-30,  # Rotate x-axis labels for better readability
+        fig1.update_layout(
+                xaxis_tickangle=-60,  # Rotate x-axis labels for better readability
                 yaxis_title='Average Rating (1=A, 7=G)',
                 xaxis_title='Aircraft Variant',
                 showlegend=False  # Remove legend since color is already used for differentiation
             )
 
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig1, use_container_width=True)
 
     with aircraft_col2:
         # Ensure 'Average_rating' is numeric
@@ -775,7 +762,7 @@ with aircraft:
         # Select top 20 variants with the best ratings
         top_20_variants = avg_ratings.nsmallest(20, 'Average_rating')
 
-        st.subheader("Top 20 Aircraft Variants with the Best Average Ratings")
+        # st.subheader("Top 20 Aircraft Variants by Average Ratings")
 
         fig = px.bar(
             top_20_variants,
@@ -783,13 +770,13 @@ with aircraft:
             y='Average_rating',
             color='Aircraft Manufacturer',
             title='Top 20 Aircraft Variants with the Best Average Ratings',
-            labels={'Aircraft Variant': 'Aircraft Variant', 'Average_rating': 'Average Rating (1=A, 7=G)'},
+            labels={'Aircraft Variant': 'Aircraft Variant', 'Average_rating': 'Average Rating'},
             text='Average_rating',
             color_continuous_scale='Viridis'  # A sequential color palette
         )
 
         fig.update_layout(
-            xaxis_tickangle=-45,
+            xaxis_tickangle=-60,
             yaxis_title='Average Rating (1=A, 7=G)',
             xaxis_title='Aircraft Variant',
             legend_title='Aircraft Manufacturer',
@@ -798,8 +785,75 @@ with aircraft:
 
         st.plotly_chart(fig, use_container_width=True)
 
+with loadfactor:
+    
+    st.header('🛩️ Loadfactor Insights 🛩️')
+
+    load1, load2 = st.columns(2)
+
+    with load1:
+        # Group by airline and calculate average load factor
+        airline_load_factors = (
+            df.groupby('Operator')['Loadfactor (%)']
+            .mean()
+            .reset_index()
+            .sort_values(by='Loadfactor (%)', ascending=False) 
+        )
+
+        # Select top 10 and bottom 10 airlines
+        top_10_airlines = airline_load_factors.head(10)
+        bottom_10_airlines = airline_load_factors.tail(10)
+
+        # Create and display bar chart for top 10 airlines
+        st.subheader("Top 10 Airlines by Average Load Factor")
+        fig_top_10 = px.bar(
+            top_10_airlines,
+            x='Operator',
+            y='Loadfactor (%)',
+            title='Top 10 Airlines by Average Load Factor',
+            labels={'Operator': 'Airline', 'Loadfactor (%)': 'Average Load Factor'},
+            color="Loadfactor (%)",
+            color_continuous_scale='RdBu',
+            text='Loadfactor (%)'
+        )
+        st.plotly_chart(fig_top_10, use_container_width=True)
+
+    with load2:
+        # Create and display bar chart for bottom 10 airlines
+        st.subheader("Bottom 10 Airlines by Average Load Factor")
+        fig_bottom_10 = px.bar(
+            bottom_10_airlines,
+            x='Operator',
+            y='Loadfactor (%)',
+            title='Bottom 10 Airlines by Average Load Factor',
+            labels={'Operator': 'Airline', 'Loadfactor (%)': 'Average Load Factor'},
+            color="Loadfactor (%)",
+            color_continuous_scale='RdBu',
+            text='Loadfactor (%)'
+        )
+        st.plotly_chart(fig_bottom_10, use_container_width=True)
+    
+    # st.subheader("Average Load Factor Per Airline")
+    fig = px.bar(
+    airline_load_factors,
+    x='Operator',
+    y='Loadfactor (%)',
+    title='Average Load Factor Per Airline',
+    labels={'Operator': 'Airline', 'Loadfactor (%)': 'Average Load Factor'},
+    color= "Loadfactor (%)",
+    color_continuous_scale='RdBu',
+    text='Loadfactor (%)' # Show values on top of bars
+    )
+    fig.update_layout(
+    xaxis_tickangle=-90, # Rotate x-axis labels for better readability
+    yaxis_title='Average Load Factor',
+    xaxis_title='Airline',
+    )
+
+    st.plotly_chart(fig, use_container_width=True)
+
 # Lay-out
-st.sidebar.title("📖 Introduction")
+st.sidebar.title("Introduction 📖")
 st.sidebar.write(
     """
 In this project, we address the pressing issue of environmental impact in aviation by creating a labeling system to evaluate the sustainability of airline routes. 
@@ -808,7 +862,7 @@ Inspired by established practices in emissions labeling, we assigned sustainabil
 )
 
 # Key Metrics Section
-st.sidebar.header("Key Metrics")
+st.sidebar.header("Key Metrics 📌")
 st.sidebar.write(
     """
 Our labeling system is built upon three core ratings:
@@ -821,7 +875,7 @@ By combining these metrics, we calculated an average rating that determines each
 )
 
 # Goal Section
-st.sidebar.header("Our Goal")
+st.sidebar.header("Our Goal 🎯")
 st.sidebar.write(
     """
 Offer actionable insights to **municipalities, governments, and airports** to support data-driven policymaking and promote sustainability initiatives.
@@ -829,7 +883,7 @@ Offer actionable insights to **municipalities, governments, and airports** to su
 )
 
 # Features Section
-st.sidebar.header("Features of Our Tool")
+st.sidebar.header("Features of Our Tool 💡")
 st.sidebar.write(
     """
 - **Dynamic Labels:** Each route is assigned a sustainability grade (A = Most sustainable, G = Least sustainable) based on its combined NOx, CO₂, and fuel flow ratings.
@@ -840,7 +894,7 @@ st.sidebar.write(
 )
 
 # Why It Matters Section
-st.sidebar.header("Why It Matters")
+st.sidebar.header("Why It Matters 🏔️")
 st.sidebar.write(
     """
 Aviation is a significant contributor to greenhouse gas emissions, and as demand for air travel grows, addressing its environmental impact becomes increasingly important. 
