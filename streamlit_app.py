@@ -16,33 +16,43 @@ import sys
 # Config
 st.set_page_config(layout="wide")  # Set wide mode as default
 
+
 # Data
-# df = pd.read_csv(
-#     "Sustainabilty_dashboard_2025.csv",
-#     usecols=[
-#         "ADEP",
-#         "ADES",
-#         "AIRCRAFT_ID",
-#         "Operator",
-#         "Engine Model",
-#         "Aircraft Variant",
-#         "Aircraft Manufacturer",
-#         "Average_rating",
-#         "Distance (km)",
-#         "Flight Time",
-#         "FLT_UID",
-#         "Overall_rating",
-#         "Loadfactor (%)",
-#         "NAME_ADEP",
-#         "LONGITUDE_ADEP",
-#         "LATITUDE_ADEP",
-#         "NAME_ADES",
-#         "LATITUDE_ADES",
-#         "LONGITUDE_ADES",
-#         "Loadfactor",
-#     ],
-# )  #  
-df = pd.read_csv('Sustainabilty_dashboard_2025.csv')
+@st.cache_data
+def load_data(csvf):
+    df = pd.read_csv(
+        csvf,
+        usecols=[
+            "ADEP",
+            "ADES",
+            "AIRCRAFT_ID",
+            "Operator",
+            "Aircraft Variant",
+            "Average_rating",
+            "Distance (km)",
+            "Engine Model",
+            "Engine Manufacturer",
+            "Aircraft Manufacturer",
+            "Loadfactor (%)",
+            "Flight Time",
+            "FLT_UID",
+            "Overall_rating",
+            "NAME_ADEP",
+            "COUNTRY_CODE_ADES",
+            "COUNTRY_CODE_ADEP",
+            "LONGITUDE_ADEP",
+            "LATITUDE_ADEP",
+            "NAME_ADES",
+            "LATITUDE_ADES",
+            "LONGITUDE_ADES",
+            "Loadfactor",
+        ],
+    )  # pd.read_csv('Sustainabilty_dashboard_2025.csv')
+    return df
+
+
+df = load_data("Sustainabilty_dashboard_2025.csv")
+
 
 gdf = gpd.GeoDataFrame(
     df,
@@ -239,9 +249,52 @@ aircraft_colors = {
     "ATR 42": "#00008B",  # Dark Blue
 }
 
+
+def generate_color(angle=0, saturation=80, lightness=50, color_format="hex"):
+    a = angle % 360 if angle > 359 else angle
+    a = a + 360 if a < 0 else a
+    if saturation < 0 or saturation > 100:
+        return "Invalid saturation value, must be between 0 and 100"
+    if lightness < 0 or lightness > 100:
+        return "Invalid lightness value, must be between 0 and 100"
+    s = saturation / 100
+    l = lightness / 100
+
+    def k(n):
+        return (n + (angle) / 30) % 12
+
+    a = s * min(l, 1 - l)
+
+    def fn(n):
+        return l - a * max(-1, min(k(n) - 3, min(9 - k(n), 1)))
+
+    red = hex(round(255 * fn(0)))
+    green = hex(round(255 * fn(8)))
+    blue = hex(round(255 * fn(4)))
+    match color_format:
+        case "hex":
+            return f"#{red[2:]}{green[2:]}{blue[2:]}"
+        case "rgb":
+            return f"rgb({red[2:]},{green[2:]},{blue[2:]})"
+        case "hsl":
+            return f"hsl({a},{s*100}%,{l*100}%)"
+        case "hsv":
+            return f"hsv({a},{s*100}%,{l*100}%)"
+        case _:
+            return 'Invalid color_format type, must be "hex", "rgb", "hsl", or "hsv"'
+
+
 # Get unique airports
-unique_departure_airports = df["ADEP"].unique()
-unique_destination_airports = df["ADES"].unique()
+tmp_uda = df["ADEP"].unique()
+
+unique_departure_airports = {"All": list(tmp_uda)}
+for k, l in zip(tmp_uda, tmp_uda):
+    unique_departure_airports[k] = l
+
+tmp_uda = df["ADES"].unique()
+unique_destination_airports = {"All": list(tmp_uda)}
+for k, l in zip(tmp_uda, tmp_uda):
+    unique_destination_airports[k] = l
 
 # Streamlit Page
 st.title("🛫 Sustainability Dashboard 🛬")
@@ -252,61 +305,78 @@ box1, box2 = st.columns(2)
 # options are:
 # NOTE: this is NOT selections
 if "deplist" not in st.session_state:
-    st.session_state.deplist = ["All"] + list(unique_departure_airports)
+    st.session_state.deplist = unique_departure_airports
 if "destlist" not in st.session_state:
-    st.session_state.destlist = ["EHAM"]
+    st.session_state.destlist = ["EHAM", "EHAM"]
 
 # init session state for selected airports
 if "deps" not in st.session_state:
-    st.session_state.deps = ["All"]
+    st.session_state.deps = []
 if "dests" not in st.session_state:
-    st.session_state.dests = ["EHAM"]
+    st.session_state.dests = []
 
-if "All" in st.session_state.deps:
-    st.session_state.deps = list(unique_departure_airports)
-if "All" in st.session_state.dests:
-    st.session_state.dests = list(unique_departure_airports)
+
+def flatten(container):
+    for i in container:
+        if isinstance(i, (list, tuple)):
+            for j in flatten(i):
+                yield j
+        else:
+            yield i
 
 
 def depSelected():
-    sys.stderr.write(f"dest change: {st.session_state.deps}\n")
+    # sys.stderr.write(f"Destination changed: {st.session_state.deps}\n")
     if "All" in st.session_state.deps:
-        #   st.session_state.deplist = ["All"] + list(unique_departure_airports)
-        st.session_state.deps = list(unique_departure_airports)
-        st.session_state.destlist = ["EHAM"]
-        st.session_state.dests = ["EHAM"]
+        st.session_state.deps = {"All": "All"}
+        st.session_state.deplist = {"All": "All"}
+        st.session_state.destlist = {"EHAM": "EHAM"}
+        st.session_state.dests = {"EHAM", "EHAM"}
     else:
-        st.session_state.destlist = ["All"] + list(unique_departure_airports)
-        # st.session_state.dests = ['EHAM']
+        st.session_state.destlist = unique_destination_airports
 
 
 def destSelected():
-    sys.stderr.write(f"dest change: {st.session_state.dests}\n")
+    # sys.stderr.write(f"dest change: {st.session_state.dests}\n")
     if "All" in st.session_state.dests:
-        st.session_state.dests = list(unique_departure_airports)
-        st.session_state.deplist = ["EHAM"]
-        st.session_state.deps = ["EHAM"]
+        # st.session_state.dests = unique_departure_airports
+        st.session_state.dests = {"All": "All"}
+        st.session_state.destlist = {"All": "All"}
+        st.session_state.deplist = {"EHAM": "EHAM"}
+        st.session_state.deps = {"EHAM": "EHAM"}
     else:
-        st.session_state.deplist = ["All"] + list(unique_departure_airports)
-        # st.session_state.deps = ['EHAM']
+        st.session_state.deplist = unique_departure_airports
 
 
-sys.stderr.write(f"deps: {st.session_state.deps}\ndest: {st.session_state.dests}\n")
+def format_airport(airport):
+    # get the first key of the dictionary
+    return airport
+
+
+# sys.stderr.write(f"deps: {st.session_state.deps}\ndest: {st.session_state.dests}\n")
 with box1:
     departure_airport = st.multiselect(
-        "Departure", st.session_state.deplist, on_change=depSelected, key="deps"
+        "Departure",
+        st.session_state.deplist,
+        format_func=format_airport,
+        on_change=depSelected,
+        key="deps",
     )
 
 with box2:
     destination_airport = st.multiselect(
-        "Destination", st.session_state.destlist, on_change=destSelected, key="dests"
+        "Destination",
+        st.session_state.destlist,
+        format_func=format_airport,
+        on_change=destSelected,
+        key="dests",
     )
 
-    filtered_df = df[
-        (df["ADEP"].isin(st.session_state.deps))
-        & (df["ADES"].isin(st.session_state.dests))
-    ]
-    sys.stderr.write(f"filtered_df: {len(filtered_df)}\n")
+    adep = flatten(list(map(unique_departure_airports.get, st.session_state.deps)))
+    ades = flatten(list(map(unique_destination_airports.get, st.session_state.dests)))
+    # sys.stderr.write(f"-----------\nadep: {adep}\nades: {ades}\n---------\n")
+    filtered_df = df[(df["ADEP"].isin(adep)) & (df["ADES"].isin(ades))]
+    # sys.stderr.write(f"filtered_df: {len(filtered_df)}\n")
     if len(filtered_df) > 300:
         best_100 = filtered_df.sort_values(by="Average_rating", ascending=True).head(
             100
@@ -334,26 +404,14 @@ route_avg_load_factors = filtered_df.groupby(["ADEP", "ADES"])["Loadfactor"].mea
 # Create a Plotly figure
 fig = go.Figure()
 
-# fig.add_trace(
-#     go.Scattermapbox(
-#         lat=df["LATITUDE_ADES"],
-#         lon=df["LONGITUDE_ADES"],
-#         mode="markers",
-#         marker=dict(size=5, color="white"),
-#         text=df["NAME_ADES"] + ", " + df["COUNTRY_CODE_ADES"] + "<br>" + df["ADES"],
-#         hoverinfo="text",
-#         showlegend=False,
-#     )
-# )
-line_color = "gray"
-
+#     # Add scattermapbox traces for departure and arrival airports
 fig.add_trace(
     go.Scattermapbox(
         lat=df["LATITUDE_ADES"],
         lon=df["LONGITUDE_ADES"],
         mode="markers",
         marker=dict(size=5, color="white"),
-        text=df["NAME_ADES"] + ", " + df["COUNTRY_CODE_ADES"] + "<br>" + df["ADES"],  # <---------------
+        text=df["NAME_ADES"] + ", " + df["COUNTRY_CODE_ADES"] + "<br>" + df["ADES"],
         hoverinfo="text",
         showlegend=False,
     )
@@ -365,11 +423,14 @@ fig.add_trace(
         lon=df["LONGITUDE_ADEP"],
         mode="markers",
         marker=dict(size=5, color="white"),
-        text=df["NAME_ADES"] + ", " + df["COUNTRY_CODE_ADES"] + "<br>" + df["ADES"],
+        text=df["NAME_ADEP"] + ", " + df["COUNTRY_CODE_ADEP"] + "<br>" + df["ADEP"],
         hoverinfo="text",
         showlegend=False,
     )
 )
+
+line_color = "gray"
+
 
 # else:
 #     # Default to gray for all lines when filter is not applied
@@ -401,7 +462,8 @@ for _, row in map_df.iterrows():
             # Create a color based on load factor using a blue-to-yellow gradient
             line_color = plt.cm.viridis(normalized_load_factor)
             sys.stderr.write(f"Loadfactor: {avg_load_factor}\n")
-            line_color = f"rgb({int(line_color[0]*255)},{int(line_color[1]*255)},{int(line_color[2]*255)})"
+            # line_color = f"rgb({int(line_color[0]*255)},{int(line_color[1]*255)},{int(line_color[2]*255)})"
+            line_color = generate_color(120 * avg_load_factor)
 
         # AIRLINE FILTER
         case "Airlines":
@@ -465,7 +527,7 @@ with selected:
         st.text(
             f"Showing select amount of columns (most important ones) and the first {max_rows_to_show} rows. Total rows: {len(filtered_df)}"
         )
-    st.table(filtered_df.head(max_rows_to_show))
+    st.table(filtered_df[selected_columns].head(max_rows_to_show))
 
 with export:
     # Download button for filtered data
@@ -485,7 +547,7 @@ text1, img1 = st.columns([0.7, 0.3])
 
 with text1:
     st.subheader("How do the labels work?")
-    st.write("Small story about the labels")
+    st.write("Small explanation")
 
 with img1:
     st.image("energielabels.png")
@@ -502,7 +564,7 @@ with col2:
     st.table(filtered_df[selected_columns].tail(5))
 
 
-engine, airline, aircraft, loadfactor = st.tabs(['🚀 Engine 🚀', '💺 Airlines 💺', '✈️ Aircraft ✈️', '🛩️ Loadfactor 🛩️', ])
+engine, airline, aircraft, loadfactor = st.tabs(['🚀 Engine 🚀', '💺 Airlines 💺', '✈️ Aircraft ✈️', '🛩️ Load Factor 🛩️', ])
 
 with engine:
     st.header('🚀 Engine Insights 🚀')
@@ -841,7 +903,7 @@ with aircraft:
 
 with loadfactor:
     
-    st.header('🛩️ Loadfactor Insights 🛩️')
+    st.header('🛩️ Load Factor Insights 🛩️')
 
     load1, load2 = st.columns(2)
 
@@ -906,8 +968,9 @@ with loadfactor:
 
     st.plotly_chart(fig, use_container_width=True)
 
+
 # Lay-out
-st.sidebar.title("Introduction 📖")
+st.sidebar.title("📖 Introduction")
 st.sidebar.write(
     """
 In this project, we address the pressing issue of environmental impact in aviation by creating a labeling system to evaluate the sustainability of airline routes. 
@@ -916,7 +979,7 @@ Inspired by established practices in emissions labeling, we assigned sustainabil
 )
 
 # Key Metrics Section
-st.sidebar.header("Key Metrics 📌")
+st.sidebar.header("Key Metrics")
 st.sidebar.write(
     """
 Our labeling system is built upon three core ratings:
@@ -929,7 +992,7 @@ By combining these metrics, we calculated an average rating that determines each
 )
 
 # Goal Section
-st.sidebar.header("Our Goal 🎯")
+st.sidebar.header("Our Goal")
 st.sidebar.write(
     """
 Offer actionable insights to **municipalities, governments, and airports** to support data-driven policymaking and promote sustainability initiatives.
@@ -937,7 +1000,7 @@ Offer actionable insights to **municipalities, governments, and airports** to su
 )
 
 # Features Section
-st.sidebar.header("Features of Our Tool 💡")
+st.sidebar.header("Features of Our Tool")
 st.sidebar.write(
     """
 - **Dynamic Labels:** Each route is assigned a sustainability grade (A = Most sustainable, G = Least sustainable) based on its combined NOx, CO₂, and fuel flow ratings.
@@ -948,7 +1011,7 @@ st.sidebar.write(
 )
 
 # Why It Matters Section
-st.sidebar.header("Why It Matters 🏔️")
+st.sidebar.header("Why It Matters")
 st.sidebar.write(
     """
 Aviation is a significant contributor to greenhouse gas emissions, and as demand for air travel grows, addressing its environmental impact becomes increasingly important. 
