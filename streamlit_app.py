@@ -21,7 +21,7 @@ st.set_page_config(layout="wide")  # Set wide mode as default
 @st.cache_data
 def load_data(csvf):
     df = pd.read_csv(
-       csvf,
+        csvf,
         usecols=[
             "ADEP",
             "ADES",
@@ -55,9 +55,8 @@ def load_data(csvf):
     return df
 
 
-#df = load_data("Sustainabilty_dashboard_2025.csv")
-
 df = load_data("Sustainabilty_dashboard_2025.csv")
+
 
 gdf = gpd.GeoDataFrame(
     df,
@@ -430,7 +429,7 @@ for _, row in map_df.iterrows():
                 avg_load_factor - filtered_df["Loadfactor"].min()
             ) / (filtered_df["Loadfactor"].max() - filtered_df["Loadfactor"].min())
             # Create a color based on load factor using a blue-to-yellow gradient
-            line_color = plt.cm.RdBu(normalized_load_factor)
+            line_color = plt.cm.viridis(normalized_load_factor)
             sys.stderr.write(f"Loadfactor: {avg_load_factor}\n")
             line_color = f"rgb({int(line_color[0]*255)},{int(line_color[1]*255)},{int(line_color[2]*255)})"
 
@@ -449,7 +448,7 @@ for _, row in map_df.iterrows():
             lon=[row["LONGITUDE_ADES"], row["LONGITUDE_ADEP"]],
             lat=[row["LATITUDE_ADES"], row["LATITUDE_ADEP"]],
             line=dict(color=line_color, width=1),
-            opacity=0.6,
+            opacity=0.4,
             text=f"Route: {row['ADEP']} - {row['ADES']}<br>Callsign: {row['AIRCRAFT_ID']}<br> Operator: {row['Operator']}.<br> Aircraft Variant: {row['Aircraft Variant']} <br> Avg. Load Factor: {avg_load_factor:.2f}<br> Overall rating:{row['Overall_rating']}",
             # name=row['FLT_UID'],  # Use flight_id for unique tracing
             legendgroup=row["Overall_rating"],  # Group traces by rating for legend
@@ -1012,7 +1011,7 @@ with loadfactor:
 
 
 # Story in Sidebar
-# Introduction Section
+# Lay-out
 st.sidebar.title("Introduction 📖")
 st.sidebar.write(
     """
