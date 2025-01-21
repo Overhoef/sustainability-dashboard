@@ -42,6 +42,10 @@ def load_data(csvf):
             "COUNTRY_CODE_ADEP",
             "LONGITUDE_ADEP",
             "LATITUDE_ADEP",
+            "EOBT_1",
+            "CO2 rating",
+            "NOx rating",
+            "Fuel Flow rating",
             "NAME_ADES",
             "LATITUDE_ADES",
             "LONGITUDE_ADES",
@@ -462,8 +466,7 @@ for _, row in map_df.iterrows():
             # Create a color based on load factor using a blue-to-yellow gradient
             line_color = plt.cm.viridis(normalized_load_factor)
             sys.stderr.write(f"Loadfactor: {avg_load_factor}\n")
-            # line_color = f"rgb({int(line_color[0]*255)},{int(line_color[1]*255)},{int(line_color[2]*255)})"
-            line_color = generate_color(120 * avg_load_factor)
+            line_color = f"rgb({int(line_color[0]*255)},{int(line_color[1]*255)},{int(line_color[2]*255)})"
 
         # AIRLINE FILTER
         case "Airlines":
@@ -481,7 +484,7 @@ for _, row in map_df.iterrows():
             lat=[row["LATITUDE_ADES"], row["LATITUDE_ADEP"]],
             line=dict(color=line_color, width=1),
             opacity=0.4,
-            text=f"Route: {row['ADEP']} - {row['ADES']}<br>Avg. Load Factor: {avg_load_factor:.2f}%.<br> Operator: {row['Operator']}.<br> Aircraft Variant: {row['Aircraft Variant']} <br> Overall rating:{row['Overall_rating']}",
+            text=f"Route: {row['ADEP']} - {row['ADES']}<br>Callsign: {row['AIRCRAFT_ID']}<br> Operator: {row['Operator']}.<br> Aircraft Variant: {row['Aircraft Variant']} <br> Avg. Load Factor: {avg_load_factor:.2f}%.<br> Overall rating:{row['Overall_rating']}",
             # name=row['FLT_UID'],  # Use flight_id for unique tracing
             legendgroup=row["Overall_rating"],  # Group traces by rating for legend
             name=f"{row['Overall_rating']} - <span style='color:#999'>{ row['AIRCRAFT_ID']}</span>",  # Use rating as legend label
@@ -494,7 +497,7 @@ fig.update_layout(
     width=1200,
     mapbox=dict(
         style="carto-darkmatter",
-        zoom=3,
+        zoom=2.5,
         center=dict(lat=50, lon=20),  # EU centered
         # projection=dict(type='equirectangular')
     ),
@@ -510,6 +513,7 @@ with selected:
     max_rows_to_show = 5  # Adjust as needed
     selected_columns = [
         "FLT_UID",
+        "EOBT_1",
         "NAME_ADEP",
         "ADEP",
         "NAME_ADES",
@@ -519,6 +523,9 @@ with selected:
         "AIRCRAFT_ID",
         "Flight Time",
         "Distance (km)",
+        "CO2 rating",
+        "NOx rating",
+        "Fuel Flow rating",
         "Overall_rating",
     ]  # Select desired columns
 
@@ -555,14 +562,12 @@ with img1:
 col1, col2 = st.columns(2)
 
 with col1:
-    st.header("Top 5 best flights")
-    st.table(filtered_df[selected_columns].head(5))
+    st.header("Top 5 Best Flights")
+    st.table(filtered_df.sort_values(by=["Average_rating"]).head(5)[selected_columns])
 
 with col2:
-    st.header("Top 5 worst flights")
-    filtered_df.sort_values(by=["Average_rating"], ascending=False)
-    st.table(filtered_df[selected_columns].tail(5))
-
+    st.header("Top 5 Worst Flights")
+    st.table(filtered_df.sort_values(by=["Average_rating"], ascending=False).head(5)[selected_columns])
 
 engine, airline, aircraft, loadfactor = st.tabs(['🚀 Engine 🚀', '💺 Airlines 💺', '✈️ Aircraft ✈️', '🛩️ Load Factor 🛩️', ])
 
