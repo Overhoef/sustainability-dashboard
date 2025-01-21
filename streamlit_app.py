@@ -18,8 +18,8 @@ st.set_page_config(layout="wide")  # Set wide mode as default
 
 
 # Data
-@st.cache_data
-def load_data(csvf):
+# @st.cache_data
+# def load_data(csvf):
 #    df = pd.read_csv(
 #       csvf,
 #        usecols=[
@@ -52,11 +52,12 @@ def load_data(csvf):
 #            "Loadfactor",
 #        ],
 #    )  # pd.read_csv('Sustainabilty_dashboard_2025.csv')
-    return df
+#    return df
 
 
-df = load_data("Sustainabilty_dashboard_2025.csv")
+#df = load_data("Sustainabilty_dashboard_2025.csv")
 
+df = pd.read_csv("Sustainabilty_dashboard_2025.csv")
 
 gdf = gpd.GeoDataFrame(
     df,
