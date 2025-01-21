@@ -1012,7 +1012,7 @@ with loadfactor:
 
 # Story in Sidebar
 # Introduction Section
-st.sidebar.title("📖 Introduction")
+st.sidebar.title("Introduction 📖")
 st.sidebar.write(
     """
 In this project, we address the pressing issue of environmental impact in aviation by creating a labeling system to evaluate the sustainability of airline routes. 
@@ -1021,7 +1021,7 @@ Inspired by established practices in emissions labeling, we assigned sustainabil
 )
 
 # Key Metrics Section
-st.sidebar.header("Key Metrics")
+st.sidebar.header("Key Metrics 📌")
 st.sidebar.write(
     """
 Our labeling system is built upon three core ratings:
@@ -1034,7 +1034,7 @@ By combining these metrics, we calculated an average rating that determines each
 )
 
 # Goal Section
-st.sidebar.header("Our Goal")
+st.sidebar.header("Our Goal 🎯")
 st.sidebar.write(
     """
 Offer actionable insights to **municipalities, governments, and airports** to support data-driven policymaking and promote sustainability initiatives.
@@ -1042,7 +1042,7 @@ Offer actionable insights to **municipalities, governments, and airports** to su
 )
 
 # Features Section
-st.sidebar.header("Features of Our Tool")
+st.sidebar.header("Features of Our Tool 💡")
 st.sidebar.write(
     """
 - **Dynamic Labels:** Each route is assigned a sustainability grade (A = Most sustainable, G = Least sustainable) based on its combined NOx, CO₂, and fuel flow ratings.
@@ -1053,7 +1053,7 @@ st.sidebar.write(
 )
 
 # Why It Matters Section
-st.sidebar.header("Why It Matters")
+st.sidebar.header("Why It Matters 🏔️")
 st.sidebar.write(
     """
 Aviation is a significant contributor to greenhouse gas emissions, and as demand for air travel grows, addressing its environmental impact becomes increasingly important. 
