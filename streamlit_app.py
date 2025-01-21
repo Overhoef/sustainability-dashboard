@@ -521,11 +521,11 @@ with text1:
     st.subheader("How do the labels work?")
     st.write(
         """
-Flight environmental labels, ranging from A to G, offer a clear way to assess a flight’s environmental impact. Flights labeled "A" are the most eco-friendly, with lower CO₂ emissions per passenger, while flights labeled as "G" represent the highest impact on nature and climate.
+The A-to-G environmental label offers insights into the environmental impact of flights, making it a useful reference for airlines, airports, and governments.
 
-These labels are based on data analyzing fuel efficiency, aircraft type, route distance, and load factor. By considering these factors, the system provides a comprehensive view of a flight’s sustainability.
+Flights labeled A are the most eco-efficient, with the lowest CO₂ emissions per passenger, while G flights have the highest impact. These labels are based on data such as fuel efficiency, aircraft type, route length, and passenger load.
 
-Passengers can use this information to choose greener options and reduce their ecological footprint, without the need to find alternatives. The system encourages airlines to improve efficiency, promoting accountability and a more sustainable future for aviation.
+For airlines, the system provides a clearer picture of fleet efficiency and operational impact. Governments and policymakers can use these insights to inform decisions around greener aviation strategies and environmental goals. It’s a tool that highlights opportunities for improvement across the sector.
 
 """
     )
@@ -727,12 +727,19 @@ with airline:
             .mean()
             .reset_index()
         )
+        # Calculate average rating for each airline across all selected routes
+        airline_avg_ratings = (
+            route_airline_ratings.groupby("Operator")["Average_rating"]
+            .mean()
+            .reset_index()
+        )
+
         # Plotting comparison of airlines for the specific route (flight count)
         adep = flatten(list(map(unique_departure_airports.get, st.session_state.deps)))
         ades = flatten(
             list(map(unique_destination_airports.get, st.session_state.dests))
         )
-        route_data = route_airline_ratings[
+        route_data = airline_avg_ratings[
             (route_airline_ratings["ADEP"].isin(adep))
             & (route_airline_ratings["ADES"].isin(ades))
         ]
@@ -766,9 +773,8 @@ with airline:
     adests = flatten(list(map(unique_destination_airports.get, st.session_state.dests)))
     with airline_col2:
 
-        route_data = route_airline_ratings[
-            (route_airline_ratings["ADEP"].isin(adep))
-            & (route_airline_ratings["ADES"].isin(adests))
+        route_data = filtered_df[
+            (filtered_df["ADEP"].isin(adep)) & (filtered_df["ADES"].isin(adests))
         ]
 
         # Calculate total flights per airline (after filtering for the specific route)
