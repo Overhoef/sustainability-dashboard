@@ -449,7 +449,7 @@ for _, row in map_df.iterrows():
             lat=[row["LATITUDE_ADES"], row["LATITUDE_ADEP"]],
             line=dict(color=line_color, width=1),
             opacity=0.6,
-            text=f"Route: {row['ADEP']} - {row['ADES']}<br>Callsign: {row['AIRCRAFT_ID']}<br> Operator: {row['Operator']}.<br> Aircraft Variant: {row['Aircraft Variant']} <br> Avg. Load Factor: {avg_load_factor:.2f}%.<br> Overall rating:{row['Overall_rating']}",
+            text=f"Route: {row['ADEP']} - {row['ADES']}<br>Callsign: {row['AIRCRAFT_ID']}<br> Operator: {row['Operator']}.<br> Aircraft Variant: {row['Aircraft Variant']} <br> Avg. Load Factor: {avg_load_factor:.2f}<br> Overall rating:{row['Overall_rating']}",
             # name=row['FLT_UID'],  # Use flight_id for unique tracing
             legendgroup=row["Overall_rating"],  # Group traces by rating for legend
             name=f"{row['Overall_rating']} - <span style='color:#999'>{ row['AIRCRAFT_ID']}</span>",  # Use rating as legend label
