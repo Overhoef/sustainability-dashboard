@@ -448,7 +448,7 @@ for _, row in map_df.iterrows():
             lon=[row["LONGITUDE_ADES"], row["LONGITUDE_ADEP"]],
             lat=[row["LATITUDE_ADES"], row["LATITUDE_ADEP"]],
             line=dict(color=line_color, width=1),
-            opacity=0.4,
+            opacity=0.6,
             text=f"Route: {row['ADEP']} - {row['ADES']}<br>Callsign: {row['AIRCRAFT_ID']}<br> Operator: {row['Operator']}.<br> Aircraft Variant: {row['Aircraft Variant']} <br> Avg. Load Factor: {avg_load_factor:.2f}%.<br> Overall rating:{row['Overall_rating']}",
             # name=row['FLT_UID'],  # Use flight_id for unique tracing
             legendgroup=row["Overall_rating"],  # Group traces by rating for legend
@@ -672,7 +672,7 @@ with engine:
         yaxis_title="Average Rating (1=A, 7=G)",
         xaxis_title="Engine Model",
         legend_title="Engine Manufacturer",
-        legend=dict(yanchor="top", y=0.99, xanchor="left", x=0.01),
+        # legend=dict(yanchor="top", y=0.99, xanchor="left", x=0.01),
     )
 
     # Display the interactive plot
