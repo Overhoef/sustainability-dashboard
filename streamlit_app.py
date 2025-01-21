@@ -334,20 +334,42 @@ route_avg_load_factors = filtered_df.groupby(["ADEP", "ADES"])["Loadfactor"].mea
 # Create a Plotly figure
 fig = go.Figure()
 
-# Add scattermapbox traces for the airports
+# fig.add_trace(
+#     go.Scattermapbox(
+#         lat=df["LATITUDE_ADES"],
+#         lon=df["LONGITUDE_ADES"],
+#         mode="markers",
+#         marker=dict(size=5, color="white"),
+#         text=df["NAME_ADES"] + ", " + df["COUNTRY_CODE_ADES"] + "<br>" + df["ADES"],
+#         hoverinfo="text",
+#         showlegend=False,
+#     )
+# )
+line_color = "gray"
+
+fig.add_trace(
+    go.Scattermapbox(
+        lat=df["LATITUDE_ADES"],
+        lon=df["LONGITUDE_ADES"],
+        mode="markers",
+        marker=dict(size=5, color="white"),
+        text=df["NAME_ADES"] + ", " + df["COUNTRY_CODE_ADES"] + "<br>" + df["ADES"],  # <---------------
+        hoverinfo="text",
+        showlegend=False,
+    )
+)
+
 fig.add_trace(
     go.Scattermapbox(
         lat=df["LATITUDE_ADEP"],
         lon=df["LONGITUDE_ADEP"],
         mode="markers",
         marker=dict(size=5, color="white"),
-        text=df["ADEP"],
+        text=df["NAME_ADES"] + ", " + df["COUNTRY_CODE_ADES"] + "<br>" + df["ADES"],
         hoverinfo="text",
         showlegend=False,
     )
 )
-
-line_color = "gray"
 
 # else:
 #     # Default to gray for all lines when filter is not applied
