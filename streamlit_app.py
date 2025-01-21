@@ -806,7 +806,8 @@ with airline:
 
 with aircraft:
     st.header("✈️ Aircraft Insights ✈️")
-    # Group by route, operator, and aircraft type, calculate average rating
+
+    ## Group by route, operator, and aircraft type, calculate average rating
     route_operator_aircraft_ratings = (
         filtered_df.groupby(["ADEP", "ADES", "Operator", "Aircraft Variant"])[
             "Average_rating"
@@ -828,39 +829,40 @@ with aircraft:
         ]
 
         # Check if data is available for the selected route
-        # Sort by average rating for clarity
-        route_data = route_data.sort_values(by="Average_rating", ascending=True)
+        if not route_data.empty:
+            # Calculate mean average rating for each aircraft type within each operator
+            mean_ratings_by_operator_aircraft = (
+                route_data.groupby(["Operator", "Aircraft Variant"])["Average_rating"]
+                .mean()
+                .reset_index()
+            )
 
-        # Combine operator and aircraft variant for x-axis labels
-        route_data["Label"] = (
-            route_data["Operator"] + " (" + route_data["Aircraft Variant"] + ")"
-        )
+            # Plotting comparison of airlines and aircraft types for the specific route
+            st.subheader(
+                f'Mean Average Ratings by Airline and Aircraft Type for Route {", ".join(st.session_state.deps)} -> {", ".join(st.session_state.dests)}'
+            )
 
-        # Plotting comparison of airlines and aircraft types for the specific route
-        st.subheader(
-            f'Average Ratings by Airline and Aircraft Type for Route {", ".join(st.session_state.deps)} -> {", ".join(st.session_state.dests)}'
-        )
+            fig = px.bar(
+                mean_ratings_by_operator_aircraft,
+                x="Operator",
+                y="Average_rating",
+                color="Aircraft Variant",
+                barmode="group",  # Use 'group' for side-by-side bars
+                title=f'Mean Average Ratings by Airline and Aircraft Type for Route {", ".join(st.session_state.deps)} -> {", ".join(st.session_state.dests)}',
+                labels={
+                    "Operator": "Airline",
+                    "Average_rating": "Mean Average Rating (1=A, 7=G)",
+                },
+                text="Average_rating",  # Show values on top of bars
+            )
+            fig.update_layout(
+                xaxis_tickangle=-45,  # Rotate x-axis labels for better readability
+                yaxis_title="Mean Average Rating (1=A, 7=G)",
+            )
 
-        fig = px.bar(
-            route_data,
-            x="Operator",
-            y="Average_rating",
-            color="Aircraft Variant",
-            barmode="group",
-            title=f'Average Ratings by Airline and Aircraft Type for Route {", ".join(st.session_state.deps)} -> {", ".join(st.session_state.dests)}',
-            labels={
-                "Operator": "Airline",
-                "Average_rating": "Average Rating (1=A, 7=G)",
-            },
-            text="Average_rating",  # Show values on top of bars
-        )
-        fig.update_layout(
-            xaxis_tickangle=-60,  # Rotate x-axis labels for better readability
-            yaxis_title="Average Rating (1=A, 7=G)",
-            xaxis_title="Airline (Aircraft Variant)",
-        )
-
-        st.plotly_chart(fig, use_container_width=True)
+            st.plotly_chart(fig, use_container_width=True)
+        else:
+            st.info("No data available for the selected route.")
     else:
         st.info(
             "Please enter departure and destination airport codes to view airline and aircraft type comparisons."
