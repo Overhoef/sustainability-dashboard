@@ -430,7 +430,7 @@ for _, row in map_df.iterrows():
                 avg_load_factor - filtered_df["Loadfactor"].min()
             ) / (filtered_df["Loadfactor"].max() - filtered_df["Loadfactor"].min())
             # Create a color based on load factor using a blue-to-yellow gradient
-            line_color = plt.cm.viridis(normalized_load_factor)
+            line_color = plt.cm.RdBu(normalized_load_factor)
             sys.stderr.write(f"Loadfactor: {avg_load_factor}\n")
             line_color = f"rgb({int(line_color[0]*255)},{int(line_color[1]*255)},{int(line_color[2]*255)})"
 
