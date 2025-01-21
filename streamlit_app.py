@@ -17,31 +17,32 @@ import sys
 st.set_page_config(layout="wide")  # Set wide mode as default
 
 # Data
-df = pd.read_csv(
-    "Sustainabilty_dashboard_2025.csv",
-    usecols=[
-        "ADEP",
-        "ADES",
-        "AIRCRAFT_ID",
-        "Operator",
-        "Engine Model",
-        "Aircraft Variant",
-        "Aircraft Manufacturer",
-        "Average_rating",
-        "Distance (km)",
-        "Flight Time",
-        "FLT_UID",
-        "Overall_rating",
-        "Loadfactor (%)",
-        "NAME_ADEP",
-        "LONGITUDE_ADEP",
-        "LATITUDE_ADEP",
-        "NAME_ADES",
-        "LATITUDE_ADES",
-        "LONGITUDE_ADES",
-        "Loadfactor",
-    ],
-)  #  df = pd.read_csv('Sustainabilty_dashboard_2025.csv')
+# df = pd.read_csv(
+#     "Sustainabilty_dashboard_2025.csv",
+#     usecols=[
+#         "ADEP",
+#         "ADES",
+#         "AIRCRAFT_ID",
+#         "Operator",
+#         "Engine Model",
+#         "Aircraft Variant",
+#         "Aircraft Manufacturer",
+#         "Average_rating",
+#         "Distance (km)",
+#         "Flight Time",
+#         "FLT_UID",
+#         "Overall_rating",
+#         "Loadfactor (%)",
+#         "NAME_ADEP",
+#         "LONGITUDE_ADEP",
+#         "LATITUDE_ADEP",
+#         "NAME_ADES",
+#         "LATITUDE_ADES",
+#         "LONGITUDE_ADES",
+#         "Loadfactor",
+#     ],
+# )  #  
+df = pd.read_csv('Sustainabilty_dashboard_2025.csv')
 
 gdf = gpd.GeoDataFrame(
     df,
@@ -462,7 +463,7 @@ text1, img1 = st.columns([0.7, 0.3])
 
 with text1:
     st.subheader("How do the labels work?")
-    st.write("Small explanation")
+    st.write("Small story about the labels")
 
 with img1:
     st.image("energielabels.png")
@@ -539,7 +540,7 @@ with engine:
         fig.update_layout(
             xaxis_tickangle=-60,
             yaxis_title='Average Rating',
-            xaxis_title='Engine type',
+            xaxis_title='Engine Model',
             showlegend=False
             )
         st.plotly_chart(fig, use_container_width=True)
@@ -558,10 +559,41 @@ with engine:
         fig.update_layout(
             xaxis_tickangle=-60,
             yaxis_title='Average Rating',
-            xaxis_title='Engine type',
+            xaxis_title='Engine Model',
             showlegend=False
         )
         st.plotly_chart(fig, use_container_width=True)
+    
+    # Ensure 'Average_rating' is numeric
+    df['Average_rating'] = pd.to_numeric(df['Average_rating'], errors='coerce')
+
+    # Group data by 'Engine Model' and calculate average rating
+    avg_ratings_by_engine_model = df.groupby(['Engine Manufacturer', 'Engine Model'])['Average_rating'].mean().sort_values()
+
+    # Create a Plotly Express figure
+    fig = px.bar(
+        avg_ratings_by_engine_model.reset_index(),
+        x='Engine Model',
+        y='Average_rating',
+        color='Engine Manufacturer',
+        color_continuous_scale='RdBu',  # Red-blue color scale for full range
+        title='Average Ratings by Engine Model',
+        barmode='group',
+        labels={'Engine Model': 'Engine Model', 'Average_rating': 'Average Rating'},
+        text='Average_rating'
+    )
+
+    # Update layout for readability
+    fig.update_layout(
+        xaxis_tickangle=-60,
+        yaxis_title='Average Rating (1=A, 7=G)',
+        xaxis_title='Engine Model',
+        legend_title='Engine Manufacturer',
+        legend=dict(yanchor="top", y=0.99, xanchor="left", x=0.01)
+    )
+
+    # Display the interactive plot
+    st.plotly_chart(fig, use_container_width=True)
 
 with airline:
     st.header('💺 Airlines Insights 💺')
