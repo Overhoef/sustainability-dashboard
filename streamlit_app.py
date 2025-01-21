@@ -18,10 +18,10 @@ st.set_page_config(layout="wide")  # Set wide mode as default
 
 
 # Data
-# @st.cache_data
-# def load_data(csvf):
-#    df = pd.read_csv(
-#       csvf,
+ @st.cache_data
+ def load_data(csvf):
+    df = pd.read_csv(
+       csvf
 #        usecols=[
 #            "ADEP",
 #            "ADES",
@@ -51,13 +51,13 @@ st.set_page_config(layout="wide")  # Set wide mode as default
 #            "LONGITUDE_ADES",
 #            "Loadfactor",
 #        ],
-#    )  # pd.read_csv('Sustainabilty_dashboard_2025.csv')
-#    return df
+    )  # pd.read_csv('Sustainabilty_dashboard_2025.csv')
+    return df
 
 
 #df = load_data("Sustainabilty_dashboard_2025.csv")
 
-df = pd.read_csv("Sustainabilty_dashboard_2025.csv")
+df = load_data("Sustainabilty_dashboard_2025.csv")
 
 gdf = gpd.GeoDataFrame(
     df,
