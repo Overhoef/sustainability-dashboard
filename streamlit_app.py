@@ -18,8 +18,8 @@ st.set_page_config(layout="wide")  # Set wide mode as default
 
 
 # Data
- @st.cache_data
- def load_data(csvf):
+@st.cache_data
+def load_data(csvf):
     df = pd.read_csv(
        csvf
 #        usecols=[
