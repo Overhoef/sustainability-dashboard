@@ -424,14 +424,18 @@ for _, row in map_df.iterrows():
 
         # DENSITY FILTER
         case "Loadfactor":
-            # Normalize load factor to a range of 0 to 1
+            # Normalize load factor to a range of 1 to 2
             normalized_load_factor = (
-                avg_load_factor - filtered_df["Loadfactor"].min()
-            ) / (filtered_df["Loadfactor"].max() - filtered_df["Loadfactor"].min())
-            # Create a color based on load factor using a blue-to-yellow gradient
-            line_color = plt.cm.viridis(normalized_load_factor)
-            sys.stderr.write(f"Loadfactor: {avg_load_factor}\n")
-            line_color = f"rgb({int(line_color[0]*255)},{int(line_color[1]*255)},{int(line_color[2]*255)})"
+                (avg_load_factor - filtered_df["Loadfactor"].min())
+                / (filtered_df["Loadfactor"].max() - filtered_df["Loadfactor"].min())
+            )
+        # Check if normalized_load_factor is 0 and assign a different color if it is
+            if normalized_load_factor.any() == 1:
+                line_color = "lightgray"  # Assign a different color if it is 0
+            else:
+                # Create a color based on load factor using a blue-to-yellow gradient
+                line_color = plt.cm.viridis(normalized_load_factor)
+                line_color = f"rgb({int(line_color[0] * 255)},{int(line_color[1] * 255)},{int(line_color[2] * 255)})"
 
         # AIRLINE FILTER
         case "Airlines":
