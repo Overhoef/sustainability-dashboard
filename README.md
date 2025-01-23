@@ -1,6 +1,6 @@
 # 🛫 Sustainability Dashboard 🛬
 
-I have commited the data 2 times with my dads git account (and laptop) since I could not fix my Git SSH key which is needed if the file is bigger than 25MB (that is the limit for doing it through the browser and I was not able to do it through the terminal because I could not get the key working.)
+I have commited the dataset 2 times with my dads git account (and laptop) since I could not fix my Git SSH key which is needed if the file is bigger than 25MB (that is the limit for doing it through the browser and I was not able to do it through the terminal because I could not get the key working.)
 
 A simple Streamlit app template for you to modify!
 
