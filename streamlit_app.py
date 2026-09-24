@@ -375,7 +375,7 @@ fig = go.Figure()
 
 #     # Add scattermapbox traces for departure and arrival airports
 fig.add_trace(
-    go.Scattermapbox(
+    go.Scattermap(
         lat=df["LATITUDE_ADES"],
         lon=df["LONGITUDE_ADES"],
         mode="markers",
@@ -387,7 +387,7 @@ fig.add_trace(
 )
 
 fig.add_trace(
-    go.Scattermapbox(
+    go.Scattermap(
         lat=df["LATITUDE_ADEP"],
         lon=df["LONGITUDE_ADEP"],
         mode="markers",
@@ -447,7 +447,7 @@ for _, row in map_df.iterrows():
                 line_color = aircraft_colors.get(row["Aircraft Variant"])
 
     fig.add_trace(
-        go.Scattermapbox(
+        go.Scattermap(
             mode="lines",
             lon=[row["LONGITUDE_ADES"], row["LONGITUDE_ADEP"]],
             lat=[row["LATITUDE_ADES"], row["LATITUDE_ADEP"]],
