@@ -464,7 +464,7 @@ fig.update_layout(
     showlegend=True,
     height=800,
     width=1200,
-    mapbox=dict(
+    map=dict(
         style="carto-darkmatter",
         zoom=2.5,
         center=dict(lat=50, lon=20),  # EU centered
